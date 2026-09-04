@@ -6,7 +6,15 @@ import { type PluginSurfaceProps, useRpc } from "@getpaseo/plugin";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { z } from "zod";
 import { useReducer, useState } from "react";
-import { Clipboard, ScrollView, Text, TextInput, View } from "react-native";
+import {
+  Clipboard,
+  Linking,
+  Pressable,
+  ScrollView,
+  Text,
+  TextInput,
+  View,
+} from "react-native";
 import * as Rpc from "../shared/tunnel-rpc.shared";
 import { Button } from "./components/controls.client";
 import {
@@ -647,6 +655,32 @@ function TunnelHostView({ theme, layout, host }: PluginSurfaceProps) {
             </>
           )}
         </>
+      )}
+      {!dialog && (
+        <View style={{ alignItems: "center", paddingTop: 8 }}>
+          <Pressable
+            accessibilityRole="link"
+            accessibilityLabel="GitHub: lyhu/paseo-plugin-tunnel"
+            disabled={action.isPending}
+            onPress={() =>
+              action.mutate(async () => {
+                await Linking.openURL(
+                  "https://github.com/lyhu/paseo-plugin-tunnel",
+                );
+              })
+            }
+            style={({ pressed }) => ({
+              minHeight: 44,
+              paddingHorizontal: 12,
+              justifyContent: "center",
+              opacity: pressed ? 0.65 : 1,
+            })}
+          >
+            <Text style={{ ...muted, fontSize: 12, textAlign: "center" }}>
+              GitHub · paseo-plugin-tunnel ↗
+            </Text>
+          </Pressable>
+        </View>
       )}
     </ScrollView>
   );
