@@ -1,3 +1,5 @@
+import { openProjectRepository } from "./open-project.client";
+import { ConnectionStatus } from "./components/connection-status.client";
 import { routeOfferPreview } from "./route-offer-preview.shared";
 import { RequestPanel } from "./components/request-panel.client";
 import type { TunnelState } from "../shared/tunnel-types.shared";
@@ -8,7 +10,6 @@ import { z } from "zod";
 import { useReducer, useState } from "react";
 import {
   Clipboard,
-  Linking,
   Pressable,
   ScrollView,
   Text,
@@ -393,6 +394,9 @@ function TunnelHostView({ theme, layout, host }: PluginSurfaceProps) {
           </View>
           {state.data && (
             <>
+              <Text style={{ ...muted, lineHeight: 20 }}>
+                {t("health.hint")}
+              </Text>
               <View style={row}>
                 <Text
                   accessibilityRole="header"
@@ -419,8 +423,17 @@ function TunnelHostView({ theme, layout, host }: PluginSurfaceProps) {
               {state.data.ingresses.map((entry) => (
                 <View key={entry.id} style={card}>
                   <Text style={{ ...text, fontSize: 15, fontWeight: "500" }}>
-                    {entry.name} · {t(`status.${entry.status}`)}
+                    {entry.name}
                   </Text>
+                  <ConnectionStatus
+                    connectivity={entry.connectivity}
+                    enabled={entry.enabled}
+                    failed={
+                      Boolean(state.error) ||
+                      Date.now() - state.dataUpdatedAt >= 30000
+                    }
+                    theme={theme}
+                  />
                   <Text selectable style={muted}>
                     {entry.targetOrigin}
                   </Text>
@@ -543,8 +556,17 @@ function TunnelHostView({ theme, layout, host }: PluginSurfaceProps) {
               {state.data.egresses.map((entry) => (
                 <View key={entry.id} style={card}>
                   <Text style={{ ...text, fontSize: 15, fontWeight: "500" }}>
-                    {entry.name} · {t(`status.${entry.status}`)}
+                    {entry.name}
                   </Text>
+                  <ConnectionStatus
+                    connectivity={entry.connectivity}
+                    enabled={entry.enabled}
+                    failed={
+                      Boolean(state.error) ||
+                      Date.now() - state.dataUpdatedAt >= 30000
+                    }
+                    theme={theme}
+                  />
                   <Text selectable style={muted}>
                     {entry.listen.host}:{entry.listen.port} →{" "}
                     {entry.ingressHostName} / {entry.ingressName}
@@ -664,9 +686,7 @@ function TunnelHostView({ theme, layout, host }: PluginSurfaceProps) {
             disabled={action.isPending}
             onPress={() =>
               action.mutate(async () => {
-                await Linking.openURL(
-                  "https://github.com/lyhu/paseo-plugin-tunnel",
-                );
+                await openProjectRepository();
               })
             }
             style={({ pressed }) => ({

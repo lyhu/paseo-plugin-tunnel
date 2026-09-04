@@ -51,6 +51,17 @@ Bearer 模式使用 `Authorization: Bearer YOUR_TOKEN`。代理认证头不会�
 
 **Manage** 提供编辑、启停、删除、轮换密钥和替换 Offer。轮换 Ingress secret 后，需要在每个 Egress 导入新 Offer；轮换 Egress token 后，调用方需要更新 Token。Token 仅在生成时完整展示，当前页面可临时复用；关闭页面后，丢失的 Token 需重新生成。
 
+## 连通状态
+
+每条 Ingress 和 Egress 显示状态圆点：**绿色**表示已验证 HTTP 链路连通，**黄色**表示离线、停用或检查中。
+
+- Ingress：规则启用、Relay 已连接，且目标 Origin 能返回 HTTP 响应。
+- Egress：listener 已启动，通过 Relay、E2EE 与 Route Offer 验证后收到内网服务的 HTTP 响应。
+
+页面轮询 Host 时，约每 15 秒检查一次 `HEAD /`，不携带业务凭据，不跟随重定向，收到响应头即停止，8 秒超时。同一 Host 的结果跨页面共享，同时最多执行 4 个检查；配置变更使旧结果失效，Host 断连或结果过期不会继续显示绿点。
+
+401、404、业务 5xx 等响应也表明 HTTP 链路已连通。圆点旁显示具体 HTTP 状态，但不代表认证通过或业务操作成功，也不覆盖公网 DNS、防火墙和外部反向代理。业务验证请使用下方请求面板。
+
 ## curl 与快速验证
 
 在每条 Egress 下打开 **curl / 快速验证**。填写路径、查询参数，选择 GET 或 POST；POST 可填写 JSON 请求体。curl 支持复制，参数使用 POSIX shell 转义。

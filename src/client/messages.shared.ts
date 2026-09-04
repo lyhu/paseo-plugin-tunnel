@@ -82,6 +82,11 @@ export const messages = {
       "الحقول الحساسة مخفية في المعاينة. استخدم زر النسخ للحصول على Route Offer الكامل للاستيراد.",
     "ui.offerCopyError":
       "تعذر نسخ Route Offer الكامل. تحقق من صلاحية الحافظة وحاول مجدداً.",
+    "health.online": "متصل",
+    "health.offline": "غير متصل",
+    "health.checking": "جارٍ الفحص…",
+    "health.hint":
+      "الأخضر: HTTP متاح. الأصفر: غير متصل أو معطل أو قيد الفحص. يُفحص HEAD / كل 15 ثانية أثناء فتح الصفحة؛ المصادقة ونتيجة API مستقلتان.",
   },
   en: {
     "actions.addIngress": "Add ingress",
@@ -169,6 +174,11 @@ export const messages = {
       "Sensitive fields are masked in this preview. Use Copy to copy the complete Route Offer for import.",
     "ui.offerCopyError":
       "Could not copy the complete Route Offer. Check clipboard access and try again.",
+    "health.online": "Connected",
+    "health.offline": "Offline",
+    "health.checking": "Checking…",
+    "health.hint":
+      "Green: HTTP reachable. Yellow: offline, disabled, or checking. HEAD / checks run every 15 seconds while this page is open; API authentication and business status are separate.",
   },
   es: {
     "actions.addIngress": "Añadir entrada",
@@ -257,6 +267,11 @@ export const messages = {
       "Los campos sensibles están ocultos en la vista previa. Usa Copiar para obtener el Route Offer completo e importarlo.",
     "ui.offerCopyError":
       "No se pudo copiar el Route Offer completo. Revisa el acceso al portapapeles e inténtalo de nuevo.",
+    "health.online": "Conectado",
+    "health.offline": "Sin conexión",
+    "health.checking": "Comprobando…",
+    "health.hint":
+      "Verde: HTTP accesible. Amarillo: desconectado, desactivado o comprobando. Se comprueba HEAD / cada 15 segundos con la página abierta; la autenticación y el resultado de la API son independientes.",
   },
   fr: {
     "actions.addIngress": "Ajouter une entrée",
@@ -345,6 +360,11 @@ export const messages = {
       "Les champs sensibles sont masqués dans cet aperçu. Utilisez Copier pour obtenir le Route Offer complet à importer.",
     "ui.offerCopyError":
       "Impossible de copier le Route Offer complet. Vérifiez l’accès au presse-papiers et réessayez.",
+    "health.online": "Connecté",
+    "health.offline": "Hors ligne",
+    "health.checking": "Vérification…",
+    "health.hint":
+      "Vert : HTTP accessible. Jaune : hors ligne, désactivé ou en vérification. HEAD / est vérifié toutes les 15 secondes sur cette page ; l’authentification et le résultat métier sont distincts.",
   },
   ja: {
     "actions.addIngress": "イングレスを追加",
@@ -432,6 +452,11 @@ export const messages = {
       "プレビューでは機密フィールドをマスクしています。「コピー」でインポート用の完全な Route Offer を取得できます。",
     "ui.offerCopyError":
       "完全な Route Offer をコピーできません。クリップボードの権限を確認して再試行してください。",
+    "health.online": "接続済み",
+    "health.offline": "オフライン",
+    "health.checking": "確認中…",
+    "health.hint":
+      "緑は HTTP 到達可能、黄はオフライン・無効・確認中です。ページ表示中は15秒ごとに HEAD / を確認します。API 認証や処理結果とは別です。",
   },
   ko: {
     "actions.addIngress": "인그레스 추가",
@@ -519,6 +544,11 @@ export const messages = {
       "미리보기의 민감한 필드는 가려집니다. 가져오기에 사용할 전체 Route Offer는 복사 버튼으로 복사하세요.",
     "ui.offerCopyError":
       "전체 Route Offer를 복사하지 못했습니다. 클립보드 권한을 확인하고 다시 시도하세요.",
+    "health.online": "연결됨",
+    "health.offline": "오프라인",
+    "health.checking": "확인 중…",
+    "health.hint":
+      "녹색은 HTTP 연결 가능, 노란색은 오프라인·비활성·확인 중입니다. 페이지가 열려 있는 동안 15초마다 HEAD /를 확인합니다. API 인증이나 작업 성공과는 별개입니다.",
   },
   "pt-BR": {
     "actions.addIngress": "Adicionar entrada",
@@ -606,6 +636,11 @@ export const messages = {
       "Os campos sensíveis estão ocultos na prévia. Use Copiar para obter o Route Offer completo para importação.",
     "ui.offerCopyError":
       "Não foi possível copiar o Route Offer completo. Verifique o acesso à área de transferência e tente novamente.",
+    "health.online": "Conectado",
+    "health.offline": "Offline",
+    "health.checking": "Verificando…",
+    "health.hint":
+      "Verde: HTTP acessível. Amarelo: offline, desativado ou verificando. HEAD / é verificado a cada 15 segundos com a página aberta; autenticação e resultado da API são independentes.",
   },
   ru: {
     "actions.addIngress": "Добавить вход",
@@ -693,6 +728,11 @@ export const messages = {
       "Конфиденциальные поля скрыты в предпросмотре. Нажмите «Копировать», чтобы получить полный Route Offer для импорта.",
     "ui.offerCopyError":
       "Не удалось скопировать полный Route Offer. Проверьте доступ к буферу обмена и повторите попытку.",
+    "health.online": "Подключено",
+    "health.offline": "Не в сети",
+    "health.checking": "Проверка…",
+    "health.hint":
+      "Зелёный: HTTP доступен. Жёлтый: нет связи, отключено или проверяется. HEAD / проверяется каждые 15 секунд при открытой странице; авторизация и результат API проверяются отдельно.",
   },
   "zh-CN": {
     "actions.addIngress": "添加入口",
@@ -776,6 +816,11 @@ export const messages = {
     "ui.offerPreviewHint":
       "预览中的敏感字段已脱敏。请使用“复制”按钮获取完整 Route Offer，用于导入。",
     "ui.offerCopyError": "无法复制完整 Route Offer，请检查剪贴板权限后重试。",
+    "health.online": "已连通",
+    "health.offline": "离线",
+    "health.checking": "检查中…",
+    "health.hint":
+      "绿点表示 HTTP 链路连通；黄点表示离线、停用或检查中。页面打开时每 15 秒检查 HEAD /，不代表业务认证或接口调用成功。",
   },
 } as const;
 export type Locale = keyof typeof messages;

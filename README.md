@@ -59,6 +59,17 @@ curl 'https://egress.example.com/api/health' \
 
 Route Offers and Access Tokens are independent credentials. Rotating an Ingress secret invalidates every existing offer for that route; distribute a new offer to each Egress. Rotating an Egress token requires callers to update their token.
 
+## Connection status
+
+Each rule has a status dot. **Green** means HTTP reachability was verified; **yellow** means offline, disabled, or still checking.
+
+- Ingress requires an active Relay connection and an HTTP response from its target origin.
+- Egress requires a running listener and an HTTP response through Relay, E2EE, and the imported Route Offer.
+
+While a page is polling the host, checks send `HEAD /` without API credentials approximately every 15 seconds. Checks time out after 8 seconds, do not follow redirects, and stop at response headers. Results are shared between viewers, with at most four checks in flight. Changes invalidate old results; host failures and stale results cannot remain green.
+
+Any upstream HTTP response, including 401, 404, or 5xx, proves connectivity. The displayed HTTP status is not a claim that API authentication or business operations succeed. Public DNS, inbound firewall rules, and the external reverse proxy are outside this check; use the request panel to test an API operation.
+
 ## Verify requests
 
 Open **curl / Quick test** under an Egress. Choose GET or POST, set the path and query, and provide a JSON body when needed. The panel generates a POSIX-shell curl command with the headers required by the selected authentication mode.
@@ -106,7 +117,7 @@ If host selection, authentication, or access is missing, ask only for that input
 
 ## Scope and development
 
-The Egress listener serves HTTP/1.1. HTTPS is supported for the private target and through an external reverse proxy for public callers. CONNECT, WebSocket Upgrade, HTTP trailers, arbitrary TCP forwarding, load balancing, and automatic request retries are not supported. Listener and relay status do not indicate upstream service health.
+The Egress listener serves HTTP/1.1. HTTPS is supported for the private target and through an external reverse proxy for public callers. CONNECT, WebSocket Upgrade, HTTP trailers, arbitrary TCP forwarding, load balancing, and automatic request retries are not supported. The connectivity dot reports transport reachability; it does not replace an application health endpoint.
 
 For development, clone the repository, run `npm ci`, then use `npm run typecheck`, `npm run lint`, and `npm run build`. Run tests by file with `npm run test:file -- <test-file>`. See [architecture](docs/design.md) and [verification coverage](VERIFICATION.md). Desktop and browser workflows are verified; iOS and Android require device validation.
 

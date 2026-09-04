@@ -1,3 +1,4 @@
+import { ConnectivityMonitor } from "./connectivity-monitor.server.js";
 import { probeEgress } from "./probe.server.js";
 import type { output as Output } from "zod";
 import type * as Rpc from "../shared/tunnel-rpc.shared.js";
@@ -5,6 +6,7 @@ import { TunnelSubsystem } from "./subsystem.server.js";
 import { FileTunnelStorage } from "./storage.server.js";
 import { parseRouteOffer } from "./offer.server.js";
 
+const connectivity = new ConnectivityMonitor();
 const storage = new FileTunnelStorage();
 const relay = storage.load().relay;
 const subsystem = new TunnelSubsystem({
@@ -22,7 +24,7 @@ void ready.catch(() =>
 
 export async function getState() {
   await ready;
-  return subsystem.getState();
+  return connectivity.snapshot(subsystem.getState(), storage.load());
 }
 export async function createIngress(
   input: Output<typeof Rpc.createIngress.input>,
@@ -92,6 +94,7 @@ export async function rotateEgressToken({
   return subsystem.rotateEgressToken(id, options);
 }
 export async function stopTunnel() {
+  connectivity.stop();
   await subsystem.stop();
 }
 

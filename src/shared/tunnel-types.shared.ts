@@ -1,10 +1,26 @@
 import { z } from "zod";
 
+export const ConnectivitySchema = z.object({
+  state: z.enum(["online", "offline", "checking"]),
+  reason: z.enum([
+    "disabled",
+    "relay",
+    "listener",
+    "checking",
+    "unreachable",
+    "verified",
+  ]),
+  checkedAt: z.number().nullable(),
+  httpStatus: z.number().int().nullable(),
+});
+export type Connectivity = z.infer<typeof ConnectivitySchema>;
+
 // Sanitized state schemas (no secrets)
 export const TunnelIngressStateSchema = z.object({
   id: z.string(),
   name: z.string(),
   enabled: z.boolean(),
+  connectivity: ConnectivitySchema.optional(),
   targetOrigin: z.string(),
   status: z.enum(["disabled", "ready", "error"]),
 });
@@ -13,6 +29,7 @@ export const TunnelEgressStateSchema = z.object({
   id: z.string(),
   name: z.string(),
   enabled: z.boolean(),
+  connectivity: ConnectivitySchema.optional(),
   listen: z.object({
     host: z.string(),
     port: z.number(),

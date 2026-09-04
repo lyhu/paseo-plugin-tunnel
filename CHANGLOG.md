@@ -4,7 +4,10 @@ User-visible changes to Paseo HTTP Tunnel. Versions follow Semantic Versioning; 
 
 ## Unreleased
 
-No changes recorded.
+### Added
+
+- Green/yellow connectivity indicators for Ingresses and Egresses, backed by cached HTTP HEAD checks through the actual route rather than listener state alone.
+- Bounded probe concurrency, cancellation on configuration changes, and stale-result handling when the host is unavailable.
 
 ## 0.1.0
 
