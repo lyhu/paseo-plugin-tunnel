@@ -1,6 +1,6 @@
 # Paseo HTTP Tunnel
 
-[English](../README.md) · [设计文档](design.md) · [安装说明](installation.md)
+[English](../README.md) · [设计文档](design.md) · [安装说明](installation.md) · [更新日志](../CHANGLOG.md)
 
 独立的 Paseo HTTP 服务代理插件。内网机器运行 Ingress，公网机器运行 Egress，通过 Relay 和端到端加密通道转发 HTTP 请求。
 

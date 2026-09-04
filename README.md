@@ -1,6 +1,6 @@
 # Paseo HTTP Tunnel
 
-[中文文档](docs/README.zh-CN.md) · [Architecture](docs/design.md) · [Installation details](docs/installation.md)
+[中文文档](docs/README.zh-CN.md) · [Architecture](docs/design.md) · [Installation details](docs/installation.md) · [Changelog](CHANGLOG.md)
 
 Expose a private HTTP service through an Egress host using Paseo's relay network and end-to-end encryption. Manage tunnels from the **HTTP Tunnel** entry in Paseo's sidebar.
 
