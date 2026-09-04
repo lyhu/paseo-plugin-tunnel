@@ -1,1 +1,6 @@
-{ "id": "tunnel" }
+{
+  "id": "tunnel",
+  "build": [
+    ["npm", "ci", "--omit=dev", "--ignore-scripts", "--no-audit", "--no-fund"]
+  ]
+}
