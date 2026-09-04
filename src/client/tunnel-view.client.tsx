@@ -1,3 +1,4 @@
+import { routeOfferPreview } from "./route-offer-preview.shared";
 import { RequestPanel } from "./components/request-panel.client";
 import type { TunnelState } from "../shared/tunnel-types.shared";
 import { useTranslation, LanguageProvider } from "./language.client";
@@ -18,6 +19,7 @@ type Dialog =
   | { kind: "form"; form: RuleForm }
   | {
       kind: "secret";
+      credential: "route-offer" | "access-token";
       title: string;
       value: string;
       copied: boolean;
@@ -181,6 +183,7 @@ function TunnelHostView({ theme, layout, host }: PluginSurfaceProps) {
         result.oneTimeToken
           ? {
               kind: "secret",
+              credential: "access-token",
               title: t("result.title"),
               value: result.oneTimeToken,
               copied: false,
@@ -280,16 +283,23 @@ function TunnelHostView({ theme, layout, host }: PluginSurfaceProps) {
                 {dialog.title}
               </Text>
               <Text style={muted}>
-                {dialog.title === t("labels.routeOffer")
+                {dialog.credential === "route-offer"
                   ? t("ui.offerHint")
                   : t("ui.secretHint")}
               </Text>
+              {dialog.credential === "route-offer" && (
+                <Text style={muted}>{t("ui.offerPreviewHint")}</Text>
+              )}
               {dialog.hint && <Text style={muted}>{dialog.hint}</Text>}
               <TextInput
                 accessibilityLabel={dialog.title}
                 multiline
                 editable={false}
-                value={dialog.value}
+                value={
+                  dialog.credential === "route-offer"
+                    ? routeOfferPreview(dialog.value)
+                    : dialog.value
+                }
                 selectTextOnFocus
                 style={{
                   ...text,
@@ -316,7 +326,14 @@ function TunnelHostView({ theme, layout, host }: PluginSurfaceProps) {
                   theme={theme}
                   onPress={() =>
                     action.mutate(async () => {
-                      await copyCredential(dialog.value, t("ui.clipboard"));
+                      await copyCredential(
+                        dialog.value,
+                        t(
+                          dialog.credential === "route-offer"
+                            ? "ui.offerCopyError"
+                            : "ui.clipboard",
+                        ),
+                      );
                       setDialog({ ...dialog, copied: true });
                     })
                   }
@@ -409,13 +426,15 @@ function TunnelHostView({ theme, layout, host }: PluginSurfaceProps) {
                           const { offer } = await exportOffer({ id: entry.id });
                           setDialog({
                             kind: "secret",
+                            credential: "route-offer",
                             title: t("labels.routeOffer"),
                             value: offer,
                             copied: false,
                           });
-                          await copyCredential(offer, t("ui.clipboard"));
+                          await copyCredential(offer, t("ui.offerCopyError"));
                           setDialog({
                             kind: "secret",
+                            credential: "route-offer",
                             title: t("labels.routeOffer"),
                             value: offer,
                             copied: true,

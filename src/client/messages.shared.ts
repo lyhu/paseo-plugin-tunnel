@@ -78,6 +78,10 @@ export const messages = {
     "ui.editIngressHint": "يظل Route Offer الحالي صالحاً بعد التعديل.",
     "ui.editEgressHint": "يؤدي تغيير المستمع إلى إنهاء الطلبات النشطة.",
     "ui.rotateHint": "يستبدل الحفظ الرمز فوراً. حدّث الرمز لدى العملاء.",
+    "ui.offerPreviewHint":
+      "الحقول الحساسة مخفية في المعاينة. استخدم زر النسخ للحصول على Route Offer الكامل للاستيراد.",
+    "ui.offerCopyError":
+      "تعذر نسخ Route Offer الكامل. تحقق من صلاحية الحافظة وحاول مجدداً.",
   },
   en: {
     "actions.addIngress": "Add ingress",
@@ -161,6 +165,10 @@ export const messages = {
     "ui.editEgressHint": "Changing the listener closes active requests.",
     "ui.rotateHint":
       "Saving immediately replaces the token. Update callers with the new token.",
+    "ui.offerPreviewHint":
+      "Sensitive fields are masked in this preview. Use Copy to copy the complete Route Offer for import.",
+    "ui.offerCopyError":
+      "Could not copy the complete Route Offer. Check clipboard access and try again.",
   },
   es: {
     "actions.addIngress": "Añadir entrada",
@@ -245,6 +253,10 @@ export const messages = {
     "ui.editEgressHint": "Cambiar el listener cierra las solicitudes activas.",
     "ui.rotateHint":
       "Guardar sustituye el token al instante. Actualiza los clientes.",
+    "ui.offerPreviewHint":
+      "Los campos sensibles están ocultos en la vista previa. Usa Copiar para obtener el Route Offer completo e importarlo.",
+    "ui.offerCopyError":
+      "No se pudo copiar el Route Offer completo. Revisa el acceso al portapapeles e inténtalo de nuevo.",
   },
   fr: {
     "actions.addIngress": "Ajouter une entrée",
@@ -329,6 +341,10 @@ export const messages = {
     "ui.editEgressHint": "Modifier l’écoute interrompt les requêtes actives.",
     "ui.rotateHint":
       "L’enregistrement remplace immédiatement le jeton. Mettez les clients à jour.",
+    "ui.offerPreviewHint":
+      "Les champs sensibles sont masqués dans cet aperçu. Utilisez Copier pour obtenir le Route Offer complet à importer.",
+    "ui.offerCopyError":
+      "Impossible de copier le Route Offer complet. Vérifiez l’accès au presse-papiers et réessayez.",
   },
   ja: {
     "actions.addIngress": "イングレスを追加",
@@ -412,6 +428,10 @@ export const messages = {
     "ui.editEgressHint": "リスナーの変更は進行中のリクエストを終了します。",
     "ui.rotateHint":
       "保存するとトークンが即座に置き換わります。呼び出し元を更新してください。",
+    "ui.offerPreviewHint":
+      "プレビューでは機密フィールドをマスクしています。「コピー」でインポート用の完全な Route Offer を取得できます。",
+    "ui.offerCopyError":
+      "完全な Route Offer をコピーできません。クリップボードの権限を確認して再試行してください。",
   },
   ko: {
     "actions.addIngress": "인그레스 추가",
@@ -495,6 +515,10 @@ export const messages = {
     "ui.editEgressHint": "리스너를 변경하면 진행 중인 요청이 종료됩니다.",
     "ui.rotateHint":
       "저장하면 토큰이 즉시 교체됩니다. 호출자의 토큰을 업데이트하세요.",
+    "ui.offerPreviewHint":
+      "미리보기의 민감한 필드는 가려집니다. 가져오기에 사용할 전체 Route Offer는 복사 버튼으로 복사하세요.",
+    "ui.offerCopyError":
+      "전체 Route Offer를 복사하지 못했습니다. 클립보드 권한을 확인하고 다시 시도하세요.",
   },
   "pt-BR": {
     "actions.addIngress": "Adicionar entrada",
@@ -578,6 +602,10 @@ export const messages = {
     "ui.editEgressHint": "Alterar o listener encerra as requisições ativas.",
     "ui.rotateHint":
       "Salvar substitui o token imediatamente. Atualize os clientes.",
+    "ui.offerPreviewHint":
+      "Os campos sensíveis estão ocultos na prévia. Use Copiar para obter o Route Offer completo para importação.",
+    "ui.offerCopyError":
+      "Não foi possível copiar o Route Offer completo. Verifique o acesso à área de transferência e tente novamente.",
   },
   ru: {
     "actions.addIngress": "Добавить вход",
@@ -661,6 +689,10 @@ export const messages = {
       "После изменения текущий Route Offer остаётся действительным.",
     "ui.editEgressHint": "Изменение слушателя прервёт текущие запросы.",
     "ui.rotateHint": "Сохранение сразу заменит токен. Обновите его у клиентов.",
+    "ui.offerPreviewHint":
+      "Конфиденциальные поля скрыты в предпросмотре. Нажмите «Копировать», чтобы получить полный Route Offer для импорта.",
+    "ui.offerCopyError":
+      "Не удалось скопировать полный Route Offer. Проверьте доступ к буферу обмена и повторите попытку.",
   },
   "zh-CN": {
     "actions.addIngress": "添加入口",
@@ -741,6 +773,9 @@ export const messages = {
     "ui.editIngressHint": "编辑后，现有 Route Offer 仍然有效。",
     "ui.editEgressHint": "修改监听地址或端口会中断当前请求。",
     "ui.rotateHint": "保存后立即替换当前令牌，请同步更新调用方。",
+    "ui.offerPreviewHint":
+      "预览中的敏感字段已脱敏。请使用“复制”按钮获取完整 Route Offer，用于导入。",
+    "ui.offerCopyError": "无法复制完整 Route Offer，请检查剪贴板权限后重试。",
   },
 } as const;
 export type Locale = keyof typeof messages;
