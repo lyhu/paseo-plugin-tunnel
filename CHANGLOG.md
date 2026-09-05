@@ -6,6 +6,7 @@ User-visible changes to Paseo HTTP Tunnel. Versions follow Semantic Versioning; 
 
 ### Added
 
+- Show the selected management host throughout the UI and clarify remote daemon setup and host-relative target addresses.
 - Show the plugin version beside the project link in the management page footer.
 
 ## 0.1.1 — 2026-09-05

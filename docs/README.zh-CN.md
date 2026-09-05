@@ -35,9 +35,11 @@ paseo plugin logs http-tunnel
 
 ## 三步配置
 
-1. **Ingress Host**：打开 HTTP Tunnel，选择 **Add Ingress**，填写名称和内网服务 Origin，例如 `http://127.0.0.1:3000`。Origin 只包含协议、主机和端口。
+在本地 Paseo UI 中即可管理已连接的远程 Host，远程只需运行 daemon。先在各 Host 安装并启用 `http-tunnel`；当多个 Host 提供该插件时，页面顶部会出现 Host 切换器。选中 Host 后，操作通过其已有的 Paseo 连接发送，可经 Relay 到达远程。详见[远程 Host 安装](installation.md#remote-hosts)。
+
+1. **选择 Ingress Host**：打开 HTTP Tunnel，选择 **Add Ingress**，填写名称和该 Host 可访问的服务 Origin，例如 `http://127.0.0.1:3000`。此处 `127.0.0.1` 指选中的 Host。Origin 只包含协议、主机和端口。
 2. 点击 **Copy Route Offer**。页面对 `relayEndpoint`、`tunnelPublicKeyB64` 和 `routeSecret` 做中间脱敏；“复制”按钮获取用于导入的完整 JSON。Offer 包含访问密钥，须私下传给 Egress 管理者，它不是加密文件。
-3. **Egress Host**：打开 HTTP Tunnel，选择 **Add Egress**，粘贴 Offer，核对来源服务与建议端口，选择监听范围和认证方式。保存后立即展示一次性 Access Token。
+3. **切换到 Egress Host**：选择 **Add Egress**，粘贴 Offer，核对来源服务与建议端口，选择监听范围和认证方式。保存后立即展示一次性 Access Token。
 
 创建 Egress 不要求 Ingress 同时在线；实际转发时两端和 Relay 都必须可达。若希望调用方从外部网络连接，监听范围选择 **Network / public**，并配置防火墙和 HTTPS 反向代理。
 

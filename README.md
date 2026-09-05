@@ -35,9 +35,11 @@ Enable plugins in **Settings → Plugins** if the host's plugin system is disabl
 
 ## Configure a tunnel
 
-1. **On the Ingress host**, open HTTP Tunnel and select **Add ingress**. Enter a name and the service origin, such as `http://127.0.0.1:3000`. An origin contains only a scheme, hostname, and optional port.
+Use your local Paseo UI to manage connected hosts, including remote hosts running only the daemon. Install and enable `http-tunnel` on each host first. When multiple hosts provide the plugin, the page header shows a Host picker. Select the host to manage; its existing Paseo connection carries the RPCs, including through Relay. See [remote host setup](docs/installation.md#remote-hosts).
+
+1. **Select the Ingress host** in HTTP Tunnel, then select **Add ingress**. Enter a name and an origin reachable from that host, such as `http://127.0.0.1:3000`. Here `127.0.0.1` means the selected host. An origin contains only a scheme, hostname, and optional port.
 2. Select **Copy Route Offer**. The preview masks the middle of `relayEndpoint`, `tunnelPublicKeyB64`, and `routeSecret`; the Copy button copies the complete JSON for import. Transfer it privately: it grants access to this service.
-3. **On the Egress host**, select **Add egress**, paste the offer, and configure the listener and authentication. Save the generated Access Token before closing the result.
+3. **Select the Egress host**, select **Add egress**, paste the offer, and configure the listener and authentication. Save the generated Access Token before closing the result.
 
 Listeners default to `127.0.0.1`. Choose **All network interfaces** only when other machines need access, and configure the host firewall accordingly. For public access, terminate HTTPS at a reverse proxy in front of Egress.
 

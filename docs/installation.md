@@ -26,6 +26,14 @@ paseo plugin install https://github.com/lyhu/paseo-plugin-tunnel --ref <tag-or-c
 
 `main` tracks the branch for `paseo plugin update http-tunnel`. Tags and commits are pinned. `paseo plugin reload http-tunnel` recompiles the currently installed source without fetching from Git. Updates and reloads can interrupt active requests.
 
+## Remote hosts
+
+A remote host needs the Paseo daemon and this plugin; it does not need a desktop or web UI. In your local Paseo app, connect to the remote host and open that host's **Settings → Plugins** to install the GitHub source and enable it. Alternatively, run the Git installation command on the remote machine. The plugin must be installed under the same `PASEO_HOME` as the connected daemon.
+
+Install with the same runtime ID, `http-tunnel`, on both hosts. HTTP Tunnel's header shows a Host picker when multiple connected hosts contribute the plugin. Select the Ingress host, add its target, and copy the Route Offer. Switch to the Egress host and import it. All RPCs use the selected host's authenticated Paseo connection, including a Relay connection; the target's loopback address belongs to that host.
+
+If no picker appears, check that the remote host is connected, supports plugins, has plugins enabled, and lists `http-tunnel` as running. An installation still named `tunnel` is a different plugin identity; use the migration below. The page cannot install a plugin on another host through its own scoped RPCs.
+
 ## Rename an existing installation
 
 If the host already lists `tunnel`, remove that registration before installing `http-tunnel` to avoid sharing listeners between two plugin processes:

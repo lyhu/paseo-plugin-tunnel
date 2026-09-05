@@ -228,6 +228,12 @@ function TunnelHostView({ theme, layout, host }: PluginSurfaceProps) {
       <Text style={{ ...muted, lineHeight: 21 }}>
         {t("labels.targetOrigin")} → Ingress → Relay → Egress
       </Text>
+      <View style={{ gap: 6 }}>
+        <Text style={{ ...text, fontWeight: "500" }}>
+          {t("ui.managedHost", { host: host.label })}
+        </Text>
+        <Text style={{ ...muted, lineHeight: 21 }}>{t("ui.hostHint")}</Text>
+      </View>
       {dialog ? (
         <View style={{ gap: 20 }}>
           {dialog.kind === "form" && (
@@ -379,8 +385,7 @@ function TunnelHostView({ theme, layout, host }: PluginSurfaceProps) {
           <View style={row}>
             <View style={{ flex: 1, justifyContent: "center" }}>
               <Text style={muted}>
-                {host.label} · Relay{" "}
-                {t(`status.${state.data?.relayStatus ?? "inactive"}`)}
+                Relay {t(`status.${state.data?.relayStatus ?? "inactive"}`)}
               </Text>
             </View>
             <Button

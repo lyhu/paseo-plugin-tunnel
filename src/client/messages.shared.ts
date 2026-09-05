@@ -74,7 +74,10 @@ export const messages = {
     "ui.connection": "فشل الاتصال",
     "ui.clipboard": "تعذر النسخ. حدد النص وانسخه.",
     "ui.ingressHint":
-      "أضف خدمة HTTP المحلية وانسخ Route Offer إلى مضيف Egress.",
+      "أضف خدمة HTTP يمكن للمضيف المحدد الوصول إليها، ثم انسخ Route Offer إلى مضيف Egress.",
+    "ui.managedHost": "المضيف المُدار: {{host}}",
+    "ui.hostHint":
+      "تُنفّذ العمليات على هذا المضيف؛ ويشير 127.0.0.1 إليه. لإدارة مضيف آخر، ثبّت http-tunnel وفعّله عليه ثم اختره من أعلى الصفحة. لا يحتاج المضيف البعيد إلى واجهة رسومية.",
     "ui.editIngressHint": "يظل Route Offer الحالي صالحاً بعد التعديل.",
     "ui.editEgressHint": "يؤدي تغيير المستمع إلى إنهاء الطلبات النشطة.",
     "ui.rotateHint": "يستبدل الحفظ الرمز فوراً. حدّث الرمز لدى العملاء.",
@@ -164,7 +167,10 @@ export const messages = {
     "ui.connection": "Connection failed",
     "ui.clipboard": "Copy failed. Select and copy the text.",
     "ui.ingressHint":
-      "Add the local HTTP service, then copy its Route Offer to the Egress host.",
+      "Add an HTTP service reachable from the selected host, then copy its Route Offer to the Egress host.",
+    "ui.managedHost": "Managing host: {{host}}",
+    "ui.hostHint":
+      "Operations run on this host; 127.0.0.1 refers to it. To manage another host, install and enable http-tunnel there, then select it in the page header. Remote hosts do not need a UI.",
     "ui.editIngressHint":
       "The existing Route Offer remains valid after editing.",
     "ui.editEgressHint": "Changing the listener closes active requests.",
@@ -257,7 +263,10 @@ export const messages = {
     "ui.connection": "Error de conexión",
     "ui.clipboard": "No se pudo copiar. Selecciona el texto.",
     "ui.ingressHint":
-      "Añade el servicio HTTP local y copia su Route Offer al host Egress.",
+      "Añade un servicio HTTP accesible desde el host seleccionado y copia su Route Offer al host Egress.",
+    "ui.managedHost": "Host administrado: {{host}}",
+    "ui.hostHint":
+      "Las operaciones se ejecutan en este host; 127.0.0.1 se refiere a él. Para administrar otro host, instala y activa http-tunnel allí y selecciónalo en la cabecera. El host remoto no necesita interfaz gráfica.",
     "ui.editIngressHint":
       "El Route Offer actual sigue siendo válido tras editar.",
     "ui.editEgressHint": "Cambiar el listener cierra las solicitudes activas.",
@@ -350,7 +359,10 @@ export const messages = {
     "ui.connection": "Échec de connexion",
     "ui.clipboard": "Copie impossible. Sélectionnez le texte.",
     "ui.ingressHint":
-      "Ajoutez le service HTTP local et copiez son Route Offer sur l’hôte Egress.",
+      "Ajoutez un service HTTP accessible depuis l’hôte sélectionné et copiez son Route Offer sur l’hôte Egress.",
+    "ui.managedHost": "Hôte géré : {{host}}",
+    "ui.hostHint":
+      "Les opérations s’exécutent sur cet hôte ; 127.0.0.1 le désigne. Pour gérer un autre hôte, installez et activez http-tunnel dessus, puis sélectionnez-le en haut de la page. Un hôte distant n’a pas besoin d’interface graphique.",
     "ui.editIngressHint":
       "Le Route Offer existant reste valide après modification.",
     "ui.editEgressHint": "Modifier l’écoute interrompt les requêtes actives.",
@@ -443,7 +455,10 @@ export const messages = {
     "ui.connection": "接続失敗",
     "ui.clipboard": "コピー失敗。テキストを選択してコピーしてください。",
     "ui.ingressHint":
-      "ローカル HTTP サービスを追加し、Route Offer を Egress ホストにコピーします。",
+      "選択したホストからアクセスできる HTTP サービスを追加し、Route Offer を Egress ホストにコピーします。",
+    "ui.managedHost": "管理対象ホスト: {{host}}",
+    "ui.hostHint":
+      "操作はこのホストで実行され、127.0.0.1 はこのホストを指します。別のホストを管理するには、そのホストに http-tunnel をインストールして有効にし、ページ上部で選択してください。リモートホストに UI は不要です。",
     "ui.editIngressHint": "編集後も既存の Route Offer は有効です。",
     "ui.editEgressHint": "リスナーの変更は進行中のリクエストを終了します。",
     "ui.rotateHint":
@@ -535,7 +550,10 @@ export const messages = {
     "ui.connection": "연결 실패",
     "ui.clipboard": "복사 실패. 텍스트를 선택하여 복사하세요.",
     "ui.ingressHint":
-      "로컬 HTTP 서비스를 추가하고 Route Offer를 Egress 호스트로 복사하세요.",
+      "선택한 호스트에서 접근할 수 있는 HTTP 서비스를 추가하고 Route Offer를 Egress 호스트로 복사하세요.",
+    "ui.managedHost": "관리 호스트: {{host}}",
+    "ui.hostHint":
+      "작업은 이 호스트에서 실행되며 127.0.0.1은 이 호스트를 가리킵니다. 다른 호스트를 관리하려면 해당 호스트에 http-tunnel을 설치하고 활성화한 후 페이지 상단에서 선택하세요. 원격 호스트에는 UI가 필요하지 않습니다.",
     "ui.editIngressHint": "편집 후에도 기존 Route Offer는 유효합니다.",
     "ui.editEgressHint": "리스너를 변경하면 진행 중인 요청이 종료됩니다.",
     "ui.rotateHint":
@@ -627,7 +645,10 @@ export const messages = {
     "ui.connection": "Falha na conexão",
     "ui.clipboard": "Falha ao copiar. Selecione o texto.",
     "ui.ingressHint":
-      "Adicione o serviço HTTP local e copie seu Route Offer para o host Egress.",
+      "Adicione um serviço HTTP acessível pelo host selecionado e copie seu Route Offer para o host Egress.",
+    "ui.managedHost": "Host gerenciado: {{host}}",
+    "ui.hostHint":
+      "As operações são executadas neste host; 127.0.0.1 se refere a ele. Para gerenciar outro host, instale e habilite http-tunnel nele e selecione-o no cabeçalho. O host remoto não precisa de interface gráfica.",
     "ui.editIngressHint": "O Route Offer atual permanece válido após a edição.",
     "ui.editEgressHint": "Alterar o listener encerra as requisições ativas.",
     "ui.rotateHint":
@@ -719,7 +740,10 @@ export const messages = {
     "ui.connection": "Ошибка подключения",
     "ui.clipboard": "Не удалось скопировать. Выделите текст.",
     "ui.ingressHint":
-      "Добавьте локальный HTTP-сервис и скопируйте его Route Offer на хост Egress.",
+      "Добавьте HTTP-сервис, доступный с выбранного хоста, и скопируйте его Route Offer на хост Egress.",
+    "ui.managedHost": "Управляемый хост: {{host}}",
+    "ui.hostHint":
+      "Операции выполняются на этом хосте; 127.0.0.1 указывает на него. Для управления другим хостом установите и включите на нём http-tunnel, затем выберите его в заголовке страницы. Удалённому хосту интерфейс не нужен.",
     "ui.editIngressHint":
       "После изменения текущий Route Offer остаётся действительным.",
     "ui.editEgressHint": "Изменение слушателя прервёт текущие запросы.",
@@ -809,7 +833,10 @@ export const messages = {
     "ui.connection": "连接失败",
     "ui.clipboard": "复制失败，请选中文字手动复制。",
     "ui.ingressHint":
-      "添加本机 HTTP 服务，再将 Route Offer 复制到 Egress 主机。",
+      "添加所选 Host 可访问的 HTTP 服务，再将 Route Offer 复制到 Egress 主机。",
+    "ui.managedHost": "当前管理 Host：{{host}}",
+    "ui.hostHint":
+      "操作在此 Host 上执行，127.0.0.1 指此 Host。管理其他 Host 时，先在该 Host 安装并启用 http-tunnel，再从页面顶部切换。远程 Host 无需 UI。",
     "ui.editIngressHint": "编辑后，现有 Route Offer 仍然有效。",
     "ui.editEgressHint": "修改监听地址或端口会中断当前请求。",
     "ui.rotateHint": "保存后立即替换当前令牌，请同步更新调用方。",
