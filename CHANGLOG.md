@@ -4,6 +4,10 @@ User-visible changes to Paseo HTTP Tunnel. Versions follow Semantic Versioning; 
 
 ## Unreleased
 
+### Fixed
+
+- Repair lockfile dependency placement for Git installation with npm 10.
+
 ### Added
 
 - Show the selected management host throughout the UI and clarify remote daemon setup and host-relative target addresses.
