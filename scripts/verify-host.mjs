@@ -49,9 +49,10 @@ try {
   });
   await client.connect();
   const plugin = await client.installDirectoryPlugin(path.resolve("."));
+  assert.equal(plugin.id, "http-tunnel");
   assert.equal(plugin.status, "running");
   const rpc = (method, input = {}) =>
-    client.invokePluginRpc("tunnel", method, input);
+    client.invokePluginRpc("http-tunnel", method, input);
   if (process.argv.includes("--ui")) {
     const bundle = await build({
       entryPoints: ["scripts/preview.client.tsx"],
@@ -128,22 +129,22 @@ try {
       await (await fetch(`http://127.0.0.1:${port}`, { headers })).text(),
       "plugin proxy works",
     );
-    assert.equal((await client.reloadPlugin("tunnel")).status, "running");
+    assert.equal((await client.reloadPlugin("http-tunnel")).status, "running");
     // The first RPC waits for startup, including restoring the relay control connection.
     await rpc("tunnel.state.get");
     assert.equal(
       await (await fetch(`http://127.0.0.1:${port}`, { headers })).text(),
       "plugin proxy works",
     );
-    await client.disablePlugin("tunnel");
+    await client.disablePlugin("http-tunnel");
     await assert.rejects(fetch(`http://127.0.0.1:${port}`, { headers }));
-    assert.equal((await client.enablePlugin("tunnel")).status, "running");
+    assert.equal((await client.enablePlugin("http-tunnel")).status, "running");
     await rpc("tunnel.state.get");
     assert.equal(
       await (await fetch(`http://127.0.0.1:${port}`, { headers })).text(),
       "plugin proxy works",
     );
-    await client.removePlugin("tunnel");
+    await client.removePlugin("http-tunnel");
     assert.deepEqual(await client.listPlugins(), []);
     console.log(
       "PASS: real Paseo subprocess install, RPC, E2EE proxy, reload, disable, enable and remove",

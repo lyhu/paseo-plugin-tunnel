@@ -29,7 +29,7 @@ const label = `verification-${randomUUID()}`;
 let ingressId;
 let egressId;
 const rpc = (method, input = {}) =>
-  client.invokePluginRpc("tunnel", method, input);
+  client.invokePluginRpc("http-tunnel", method, input);
 try {
   const ingress = await rpc("tunnel.ingress.create", {
     name: label,
@@ -88,7 +88,7 @@ try {
       egress.oneTimeToken,
     ),
   );
-  assert.equal((await client.reloadPlugin("tunnel")).status, "running");
+  assert.equal((await client.reloadPlugin("http-tunnel")).status, "running");
   await rpc("tunnel.state.get");
   assert.equal(
     await (await fetch(url, { headers })).text(),

@@ -13,10 +13,10 @@ Plugins execute trusted code without a sandbox. Enable the plugin system in Pase
 ```bash
 paseo plugin install https://github.com/lyhu/paseo-plugin-tunnel --ref main
 paseo plugin ls --json
-paseo plugin status tunnel
+paseo plugin status http-tunnel
 ```
 
-The runtime ID is `tunnel`. Install one instance per `PASEO_HOME`, because configuration and listener ports are shared within that home. If it is already installed, inspect the source before choosing an update or a local reload; do not overwrite an existing installation to change its source.
+The runtime ID is `http-tunnel`. Install one instance per `PASEO_HOME`, because configuration and listener ports are shared within that home. If it is already installed, inspect the source before choosing an update or a local reload; do not overwrite an existing installation to change its source.
 
 To pin a reviewed revision, replace `main` with an existing tag or commit:
 
@@ -24,7 +24,19 @@ To pin a reviewed revision, replace `main` with an existing tag or commit:
 paseo plugin install https://github.com/lyhu/paseo-plugin-tunnel --ref <tag-or-commit>
 ```
 
-`main` tracks the branch for `paseo plugin update tunnel`. Tags and commits are pinned. `paseo plugin reload tunnel` recompiles the currently installed source without fetching from Git. Updates and reloads can interrupt active requests.
+`main` tracks the branch for `paseo plugin update http-tunnel`. Tags and commits are pinned. `paseo plugin reload http-tunnel` recompiles the currently installed source without fetching from Git. Updates and reloads can interrupt active requests.
+
+## Rename an existing installation
+
+If the host already lists `tunnel`, remove that registration before installing `http-tunnel` to avoid sharing listeners between two plugin processes:
+
+```bash
+paseo plugin remove tunnel
+paseo plugin install https://github.com/lyhu/paseo-plugin-tunnel --ref main
+paseo plugin status http-tunnel
+```
+
+For a directory source, reinstall the same checkout path instead of the Git URL. Removing the registration leaves `$PASEO_HOME/tunnel/config.json` intact. The new ID reuses existing rules, identity, and credentials. Active tunnel requests are interrupted during the switch.
 
 ## Dependency preparation and compilation
 
@@ -34,7 +46,7 @@ The manifest declares:
 
 ```json
 {
-  "id": "tunnel",
+  "id": "http-tunnel",
   "build": [
     ["npm", "ci", "--omit=dev", "--ignore-scripts", "--no-audit", "--no-fund"]
   ]
@@ -60,7 +72,7 @@ npm run lint
 paseo plugin install "$PWD"
 ```
 
-After editing source, run the checks and `paseo plugin reload tunnel`. Do not install `dist` or treat a directory source as Git-managed. Use `git pull --ff-only` and `npm ci` in your checkout when updating a directory installation.
+After editing source, run the checks and `paseo plugin reload http-tunnel`. Do not install `dist` or treat a directory source as Git-managed. Use `git pull --ff-only` and `npm ci` in your checkout when updating a directory installation.
 
 ## Relay configuration
 
@@ -89,7 +101,7 @@ For a self-hosted Relay, set the following `relay` object. In an existing config
 | Git clone fails | Repository visibility and Git credentials on the daemon host. |
 | `npm` not found or installation fails | Daemon PATH, Node version, registry access, and installation output. |
 | Plugin is disabled or sidebar entry is absent | Host plugin switch, plugin status, and the currently selected Host. |
-| Runtime or compilation failure | `paseo plugin logs tunnel`; correct the cause before reloading. |
+| Runtime or compilation failure | `paseo plugin logs http-tunnel`; correct the cause before reloading. |
 | HTTP 401 | Listener authentication mode and caller Token. |
 | HTTP 502 | Relay connectivity, valid Route Offer, and upstream service availability. |
 | Listener cannot bind | Port availability and operating-system bind permissions. |

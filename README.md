@@ -83,12 +83,12 @@ Tests time out after 10 seconds, do not follow redirects, and retain at most 8 K
 ## Operate and update
 
 ```bash
-paseo plugin status tunnel
-paseo plugin update tunnel
-paseo plugin logs tunnel
+paseo plugin status http-tunnel
+paseo plugin update http-tunnel
+paseo plugin logs http-tunnel
 ```
 
-Git installations following `main` receive updates through `plugin update`. Use `--ref <tag-or-commit>` at installation to pin a reviewed revision. `plugin reload tunnel` reloads the installed source without fetching Git changes. Reloading or updating can interrupt active tunnel requests; neither requires restarting the main Paseo daemon.
+Git installations following `main` receive updates through `plugin update`. Use `--ref <tag-or-commit>` at installation to pin a reviewed revision. `plugin reload http-tunnel` reloads the installed source without fetching Git changes. Reloading or updating can interrupt active tunnel requests; neither requires restarting the main Paseo daemon.
 
 Configuration is stored independently in `$PASEO_HOME/tunnel/config.json`, or `~/.paseo/tunnel/config.json` when `PASEO_HOME` is unset. Access Tokens are stored as hashes; the file contains private route credentials and must remain private. The default Relay is `relay.paseo.sh:443` over TLS. For a self-hosted Relay, see [Relay configuration](docs/installation.md#relay-configuration).
 
@@ -108,8 +108,8 @@ report an existing installation instead of replacing it automatically.
 For a new installation, run:
   paseo plugin install https://github.com/lyhu/paseo-plugin-tunnel --ref main
 Enable the plugin system if needed using Paseo's supported settings.
-Verify that `paseo plugin ls --json` reports tunnel as running; inspect
-`paseo plugin logs tunnel` if it fails. Report the host and installed revision.
+Verify that `paseo plugin ls --json` reports http-tunnel as running; inspect
+`paseo plugin logs http-tunnel` if it fails. Report the host and installed revision.
 Do not restart the main daemon, expose a public listener, create tunnel rules,
 print credentials, publish npm packages, or build/upload dist artifacts.
 If host selection, authentication, or access is missing, ask only for that input.

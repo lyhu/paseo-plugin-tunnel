@@ -26,12 +26,12 @@ paseo plugin ls
 跟随 `main` 的 Git 安装使用以下命令检查和更新：
 
 ```bash
-paseo plugin status tunnel
-paseo plugin update tunnel
-paseo plugin logs tunnel
+paseo plugin status http-tunnel
+paseo plugin update http-tunnel
+paseo plugin logs http-tunnel
 ```
 
-`paseo plugin reload tunnel` 只重载当前源码，不拉取 Git 更新。更新或重载会中断活动 Tunnel 请求，但不需要重启主 daemon。可在安装时使用 `--ref <tag-or-commit>` 固定已审阅版本。
+`paseo plugin reload http-tunnel` 只重载当前源码，不拉取 Git 更新。更新或重载会中断活动 Tunnel 请求，但不需要重启主 daemon。可在安装时使用 `--ref <tag-or-commit>` 固定已审阅版本。
 
 ## 三步配置
 
@@ -97,9 +97,9 @@ Paseo 0.7.2 的插件 SDK 没有 locale 接口，因此插件只读 `@paseo:app-
 }
 ```
 
-`endpoint` 是 Ingress 连接的地址，`publicEndpoint` 写入 Offer，供 Egress 连接。省略 public 字段时使用 Ingress 地址。修改后运行 `paseo plugin reload tunnel`；地址改变后需重新导出 / 替换已有 Offer。
+`endpoint` 是 Ingress 连接的地址，`publicEndpoint` 写入 Offer，供 Egress 连接。省略 public 字段时使用 Ingress 地址。修改后运行 `paseo plugin reload http-tunnel`；地址改变后需重新导出 / 替换已有 Offer。
 
-安装到多台机器时，各自使用独立配置。在同一个 `PASEO_HOME` 下只安装一个 tunnel 实例，避免争用配置和端口。监听端口不得与其他服务冲突。
+安装到多台机器时，各自使用独立配置。在同一个 `PASEO_HOME` 下只安装一个 http-tunnel 实例，避免争用配置和端口。监听端口不得与其他服务冲突。
 
 ## 传输与边界
 
@@ -126,8 +126,8 @@ Paseo 0.7.2 的插件 SDK 没有 locale 接口，因此插件只读 `@paseo:app-
 新安装执行：
   paseo plugin install https://github.com/lyhu/paseo-plugin-tunnel --ref main
 如插件系统未开启，使用 Paseo 支持的设置启用。
-使用 paseo plugin ls --json 确认 tunnel 为 running，失败时查看
-paseo plugin logs tunnel。完成后报告目标 Host 和安装的 commit。
+使用 paseo plugin ls --json 确认 http-tunnel 为 running，失败时查看
+paseo plugin logs http-tunnel。完成后报告目标 Host 和安装的 commit。
 不要重启主 daemon、创建 Tunnel 规则、开放公网端口、输出凭据、
 发布 npm 包，或生成和上传 dist。只有目标 Host、认证或访问权限
 不足时，才询问缺失的信息。
@@ -169,7 +169,7 @@ npm run preview -- /path/to/paseo
 
 宿主集成脚本需要具备相同插件清单能力的 Paseo 源码及依赖。
 
-下面的命令会在**已安装并启用插件的本地主 Daemon**上创建临时规则、验证实际 Relay 转发并重载 tunnel，然后清理自己的规则。运行前确认可以短暂中断此插件已有连接；它不重启 Daemon。
+下面的命令会在**已安装并启用插件的本地主 Daemon**上创建临时规则、验证实际 Relay 转发并重载 http-tunnel，然后清理自己的规则。运行前确认可以短暂中断此插件已有连接；它不重启 Daemon。
 
 ```bash
 npm run verify:local -- /path/to/paseo
@@ -177,7 +177,7 @@ npm run verify:local -- /path/to/paseo
 
 ## 排查
 
-- `paseo plugin ls` 检查插件是否 running；`paseo plugin logs tunnel` 查看启动错误。
+- `paseo plugin ls` 检查插件是否 running；`paseo plugin logs http-tunnel` 查看启动错误。
 - Relay 一直 connecting：检查 Ingress 的 `relay.endpoint` 是否从该机器可达。某些机器只能访问公网 TLS 入口。
 - 401：检查认证模式和 Token；默认头是 `X-Paseo-Access-Token`。
 - 502：检查 Ingress 是否在线、目标服务是否运行、Offer 是否仍有效，以及 HTTPS 证书是否可信。

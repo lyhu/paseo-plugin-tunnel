@@ -4,6 +4,10 @@ User-visible changes to Paseo HTTP Tunnel. Versions follow Semantic Versioning; 
 
 ## Unreleased
 
+### Changed
+
+- Rename the plugin runtime ID to `http-tunnel`; existing tunnel configuration and credentials remain at the same path.
+
 ### Added
 
 - Green/yellow connectivity indicators for Ingresses and Egresses, backed by cached HTTP HEAD checks through the actual route rather than listener state alone.
