@@ -1,5 +1,6 @@
 import { openProjectRepository } from "./open-project.client";
 import { ConnectionStatus } from "./components/connection-status.client";
+import packageJson from "../../package.json";
 import { routeOfferPreview } from "./route-offer-preview.shared";
 import { RequestPanel } from "./components/request-panel.client";
 import type { TunnelState } from "../shared/tunnel-types.shared";
@@ -679,7 +680,14 @@ function TunnelHostView({ theme, layout, host }: PluginSurfaceProps) {
         </>
       )}
       {!dialog && (
-        <View style={{ alignItems: "center", paddingTop: 8 }}>
+        <View
+          style={{
+            alignItems: "center",
+            flexDirection: "row",
+            justifyContent: "center",
+            paddingTop: 8,
+          }}
+        >
           <Pressable
             accessibilityRole="link"
             accessibilityLabel="GitHub: lyhu/paseo-plugin-tunnel"
@@ -700,6 +708,12 @@ function TunnelHostView({ theme, layout, host }: PluginSurfaceProps) {
               GitHub · paseo-plugin-tunnel ↗
             </Text>
           </Pressable>
+          <Text
+            accessibilityLabel={`Version ${packageJson.version}`}
+            style={{ ...muted, fontSize: 12 }}
+          >
+            · v{packageJson.version}
+          </Text>
         </View>
       )}
     </ScrollView>

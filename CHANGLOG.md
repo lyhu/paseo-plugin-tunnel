@@ -4,7 +4,9 @@ User-visible changes to Paseo HTTP Tunnel. Versions follow Semantic Versioning; 
 
 ## Unreleased
 
-No changes recorded.
+### Added
+
+- Show the plugin version beside the project link in the management page footer.
 
 ## 0.1.1 — 2026-09-05
 
