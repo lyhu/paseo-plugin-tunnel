@@ -4,6 +4,10 @@ User-visible changes to Paseo HTTP Tunnel. Versions follow Semantic Versioning; 
 
 ## Unreleased
 
+No changes recorded.
+
+## 0.1.1 — 2026-09-05
+
 ### Changed
 
 - Rename the plugin runtime ID to `http-tunnel`; existing tunnel configuration and credentials remain at the same path.
