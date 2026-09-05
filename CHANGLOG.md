@@ -4,6 +4,10 @@ User-visible changes to Paseo HTTP Tunnel. Versions follow Semantic Versioning; 
 
 ## Unreleased
 
+### Changed
+
+- List unauthenticated access first and select it by default for new Egresses; preserve existing authentication settings.
+
 ### Fixed
 
 - Repair lockfile dependency placement for Git installation with npm 10.

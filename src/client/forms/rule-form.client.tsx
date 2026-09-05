@@ -59,7 +59,7 @@ export function RuleFormView({
           : "127.0.0.1",
       port: entry && "listen" in entry ? String(entry.listen.port) : "8080",
       offerString: "",
-      mode: entry && "access" in entry ? entry.access.mode : "header",
+      mode: entry && "access" in entry ? entry.access.mode : "none",
       token: "",
     },
   );
@@ -209,7 +209,7 @@ export function RuleFormView({
               none: t("access.none"),
             }}
             value={values.mode}
-            options={["header", "bearer", "none"]}
+            options={["none", "header", "bearer"]}
             onChange={(mode) => update({ mode })}
             theme={theme}
           />

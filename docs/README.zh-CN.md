@@ -43,13 +43,13 @@ paseo plugin logs http-tunnel
 
 创建 Egress 不要求 Ingress 同时在线；实际转发时两端和 Relay 都必须可达。若希望调用方从外部网络连接，监听范围选择 **Network / public**，并配置防火墙和 HTTPS 反向代理。
 
-推荐默认的 **Access token** 模式：
+新建 Egress 默认选择 **无认证**，选项顺序为无认证、Access Token、Bearer。需要出口鉴权时，可选择 **Access Token** 模式：
 
 ```bash
 curl -H 'X-Paseo-Access-Token: YOUR_TOKEN' http://EGRESS_HOST:8080/api/health
 ```
 
-Bearer 模式使用 `Authorization: Bearer YOUR_TOKEN`。代理认证头不会转发到内网服务；如果后端 API 本身需要 `Authorization`，选择默认的 Access token 模式，以保留后端认证头。
+Bearer 模式使用 `Authorization: Bearer YOUR_TOKEN`。代理认证头不会转发到内网服务；如果后端 API 本身需要 `Authorization`，选择 Access Token 模式，以保留后端认证头。
 
 **Manage** 提供编辑、启停、删除、轮换密钥和替换 Offer。轮换 Ingress secret 后，需要在每个 Egress 导入新 Offer；轮换 Egress token 后，调用方需要更新 Token。Token 仅在生成时完整展示，当前页面可临时复用；关闭页面后，丢失的 Token 需重新生成。
 

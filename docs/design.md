@@ -55,13 +55,13 @@ Route Offer 的名称和建议端口是导出时的快照，不建立实时跨 H
 
 | 认证模式 | Egress 校验 | 转发到内网服务 |
 | --- | --- | --- |
-| Header（默认） | `X-Paseo-Access-Token` | 移除 Tunnel Token，保留业务 `Authorization`。 |
+| Header | `X-Paseo-Access-Token` | 移除 Tunnel Token，保留业务 `Authorization`。 |
 | Bearer | `Authorization: Bearer` | 移除用于 Tunnel 认证的 `Authorization`。 |
 | None | 不校验 Token | 按普通 HTTP 字段规则转发。 |
 
 Relay 转发密文，可观察连接标识、时序和长度，不能读取 HTTP 内容或 route secret。Access Token 以 SHA-256 哈希保存，凭据比较使用恒定时间比较。普通状态 RPC 不返回 Token、哈希、Offer 或私钥。
 
-监听默认绑定 loopback。选择全部网卡和无认证均需用户主动配置，界面说明网络暴露范围。Egress 不终止 TLS；公网 HTTPS 由外部反向代理提供，链路加密不覆盖调用方到 Egress 的明文 HTTP 段。
+监听默认绑定 loopback，新建 Egress 默认无认证；修改已有 Egress 时保留其认证模式。全部网卡需用户主动选择，界面说明网络暴露范围。Egress 不终止 TLS；公网 HTTPS 由外部反向代理提供，链路加密不覆盖调用方到 Egress 的明文 HTTP 段。
 
 ## 持久化与生命周期
 

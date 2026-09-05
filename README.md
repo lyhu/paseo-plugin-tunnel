@@ -47,9 +47,9 @@ Listeners default to `127.0.0.1`. Choose **All network interfaces** only when ot
 
 | Mode | Caller credential | Forwarding behavior |
 | --- | --- | --- |
-| Header — default | `X-Paseo-Access-Token: <token>` | Removes the tunnel token; preserves the API's `Authorization` header. |
+| None — default | No tunnel credential | Anyone who can reach the listener can use it. |
+| Header | `X-Paseo-Access-Token: <token>` | Removes the tunnel token; preserves the API's `Authorization` header. |
 | Bearer | `Authorization: Bearer <token>` | Removes `Authorization` after validating the tunnel token. |
-| None | No tunnel credential | Anyone who can reach the listener can use it. |
 
 Use Header mode when the private API requires its own Bearer Token:
 
