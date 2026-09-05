@@ -6,13 +6,21 @@ User-visible changes to Paseo HTTP Tunnel. Versions follow Semantic Versioning; 
 
 ### Changed
 
+- Clarify the intended use for approved services on trusted hosts and use friendlier wording across the project documentation.
+- Prepare up to two single-use encrypted channels per Egress to reduce handshake latency; expire idle channels after 30 seconds without background reconnect loops.
+- Slide request and response flow-control windows when the oldest block is acknowledged, reducing streaming stalls while retaining existing limits.
+
 - List unauthenticated access first and select it by default for new Egresses; preserve existing authentication settings.
 
 ### Fixed
 
+- Require Git-source and update-command verification in Agent installation prompts; prohibit silent fallback to directory installation.
 - Repair lockfile dependency placement for Git installation with npm 10.
 
 ### Added
+
+- Document the upper-right Host picker and the complete cross-host Ingress-to-Egress workflow in both README languages.
+- Reproducible transport and Anthropic SSE benchmarks with aggregate-only results and a performance report.
 
 - Show the selected management host throughout the UI and clarify remote daemon setup and host-relative target addresses.
 - Show the plugin version beside the project link in the management page footer.

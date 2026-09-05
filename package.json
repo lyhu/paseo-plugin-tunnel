@@ -4,7 +4,7 @@
   "private": true,
   "type": "module",
   "license": "AGPL-3.0-only",
-  "description": "Encrypted HTTP tunnels as an isolated Paseo plugin",
+  "description": "Controlled, end-to-end encrypted HTTP service connections for trusted Paseo hosts",
   "engines": {
     "node": ">=22"
   },
@@ -18,7 +18,9 @@
     "test:file": "vitest run --bail=1 --maxWorkers=1",
     "verify:host": "tsx scripts/verify-host.mjs",
     "verify:local": "tsx scripts/verify-local.mjs",
-    "preview": "tsx scripts/verify-host.mjs --ui"
+    "preview": "tsx scripts/verify-host.mjs --ui",
+    "benchmark:transport": "tsx benchmark/transport.mjs",
+    "benchmark:sse": "node benchmark/anthropic-sse.mjs"
   },
   "dependencies": {
     "@getpaseo/relay": "0.6.1",

@@ -1,0 +1,336 @@
+{
+  "date": "2026-09-05",
+  "revision": "prepared-channels-and-sliding-window",
+  "runs": [
+    {
+      "fixture": "small",
+      "relay": "network",
+      "summary": {
+        "direct": {
+          "headersMs": 0.86,
+          "firstBodyMs": 0.95,
+          "totalMs": 1,
+          "maxChunkGapMs": 0,
+          "bytes": 256
+        },
+        "tunnel": {
+          "headersMs": 82.44,
+          "firstBodyMs": 87.91,
+          "totalMs": 87.99,
+          "maxChunkGapMs": 0,
+          "bytes": 256
+        }
+      },
+      "samples": {
+        "direct": [
+          {
+            "headersMs": 5.719624999999951,
+            "firstBodyMs": 5.911000000000058,
+            "totalMs": 6.082208000000037,
+            "maxChunkGapMs": 0,
+            "bytes": 256
+          },
+          {
+            "headersMs": 0.9360419999998157,
+            "firstBodyMs": 0.9886669999996229,
+            "totalMs": 1.028791999999612,
+            "maxChunkGapMs": 0,
+            "bytes": 256
+          },
+          {
+            "headersMs": 1.0681250000002365,
+            "firstBodyMs": 1.1309590000000753,
+            "totalMs": 1.1640419999998812,
+            "maxChunkGapMs": 0,
+            "bytes": 256
+          },
+          {
+            "headersMs": 0.8550420000001395,
+            "firstBodyMs": 0.9479169999995065,
+            "totalMs": 1.003125000000182,
+            "maxChunkGapMs": 0,
+            "bytes": 256
+          },
+          {
+            "headersMs": 0.7803339999991294,
+            "firstBodyMs": 0.839666999999281,
+            "totalMs": 0.875583999999435,
+            "maxChunkGapMs": 0,
+            "bytes": 256
+          },
+          {
+            "headersMs": 0.7584170000000086,
+            "firstBodyMs": 0.8119589999996606,
+            "totalMs": 0.8532089999998789,
+            "maxChunkGapMs": 0,
+            "bytes": 256
+          }
+        ],
+        "tunnel": [
+          {
+            "headersMs": 95.60099999999989,
+            "firstBodyMs": 95.62904200000003,
+            "totalMs": 95.6417919999999,
+            "maxChunkGapMs": 0,
+            "bytes": 256
+          },
+          {
+            "headersMs": 76.30654200000026,
+            "firstBodyMs": 76.43112500000007,
+            "totalMs": 76.48687500000005,
+            "maxChunkGapMs": 0,
+            "bytes": 256
+          },
+          {
+            "headersMs": 76.63558400000011,
+            "firstBodyMs": 76.75591699999995,
+            "totalMs": 76.8125,
+            "maxChunkGapMs": 0,
+            "bytes": 256
+          },
+          {
+            "headersMs": 87.91458299999977,
+            "firstBodyMs": 88.98883299999943,
+            "totalMs": 89.04958299999998,
+            "maxChunkGapMs": 0,
+            "bytes": 256
+          },
+          {
+            "headersMs": 82.43812499999967,
+            "firstBodyMs": 87.90529100000003,
+            "totalMs": 87.98758299999918,
+            "maxChunkGapMs": 0,
+            "bytes": 256
+          },
+          {
+            "headersMs": 91.46429199999966,
+            "firstBodyMs": 93.43737499999952,
+            "totalMs": 93.4947919999995,
+            "maxChunkGapMs": 0,
+            "bytes": 256
+          }
+        ]
+      }
+    },
+    {
+      "fixture": "large",
+      "relay": "network",
+      "summary": {
+        "direct": {
+          "headersMs": 1.16,
+          "firstBodyMs": 1.18,
+          "totalMs": 1.51,
+          "maxChunkGapMs": 0.07,
+          "bytes": 1048576
+        },
+        "tunnel": {
+          "headersMs": 83.35,
+          "firstBodyMs": 304.83,
+          "totalMs": 1348.1,
+          "maxChunkGapMs": 136.75,
+          "bytes": 1048576
+        }
+      },
+      "samples": {
+        "direct": [
+          {
+            "headersMs": 1.8423329999995985,
+            "firstBodyMs": 2.1658330000000205,
+            "totalMs": 3.5201250000000073,
+            "maxChunkGapMs": 0.3875420000003942,
+            "bytes": 1048576
+          },
+          {
+            "headersMs": 0.4851669999989099,
+            "firstBodyMs": 0.5054589999999735,
+            "totalMs": 0.8707500000000437,
+            "maxChunkGapMs": 0.06579100000089966,
+            "bytes": 1048576
+          },
+          {
+            "headersMs": 1.4350410000006377,
+            "firstBodyMs": 1.4981659999994008,
+            "totalMs": 2.3282079999989946,
+            "maxChunkGapMs": 0.07408399999985704,
+            "bytes": 1048576
+          },
+          {
+            "headersMs": 1.1555420000004233,
+            "firstBodyMs": 1.176166999999623,
+            "totalMs": 1.5090419999996811,
+            "maxChunkGapMs": 0.031166999999186373,
+            "bytes": 1048576
+          },
+          {
+            "headersMs": 0.6720419999983278,
+            "firstBodyMs": 0.696749999999156,
+            "totalMs": 1.0135840000002645,
+            "maxChunkGapMs": 0.03408399999898393,
+            "bytes": 1048576
+          },
+          {
+            "headersMs": 2.23870800000077,
+            "firstBodyMs": 2.2928329999995185,
+            "totalMs": 4.250124999998661,
+            "maxChunkGapMs": 0.6626670000005106,
+            "bytes": 1048576
+          }
+        ],
+        "tunnel": [
+          {
+            "headersMs": 86.25445800000034,
+            "firstBodyMs": 338.43816700000116,
+            "totalMs": 1317.0419580000007,
+            "maxChunkGapMs": 109.56116600000132,
+            "bytes": 1048576
+          },
+          {
+            "headersMs": 83.34670899999946,
+            "firstBodyMs": 466.13520900000003,
+            "totalMs": 2608.983375,
+            "maxChunkGapMs": 249.10512500000004,
+            "bytes": 1048576
+          },
+          {
+            "headersMs": 79.49274999999943,
+            "firstBodyMs": 253.82787500000086,
+            "totalMs": 1321.429,
+            "maxChunkGapMs": 109.77191700000003,
+            "bytes": 1048576
+          },
+          {
+            "headersMs": 81.04395900000054,
+            "firstBodyMs": 302.4398749999982,
+            "totalMs": 1262.2114999999994,
+            "maxChunkGapMs": 136.75333300000057,
+            "bytes": 1048576
+          },
+          {
+            "headersMs": 131.49249999999665,
+            "firstBodyMs": 324.66154099999767,
+            "totalMs": 1348.0964159999967,
+            "maxChunkGapMs": 136.65508300000147,
+            "bytes": 1048576
+          },
+          {
+            "headersMs": 93.33533299999908,
+            "firstBodyMs": 304.82933299999786,
+            "totalMs": 1519.161250000001,
+            "maxChunkGapMs": 149.50833400000192,
+            "bytes": 1048576
+          }
+        ]
+      }
+    },
+    {
+      "fixture": "sse",
+      "relay": "network",
+      "summary": {
+        "direct": {
+          "headersMs": 0.48,
+          "firstBodyMs": 11.7,
+          "totalMs": 1087.14,
+          "maxChunkGapMs": 11.62,
+          "bytes": 23290
+        },
+        "tunnel": {
+          "headersMs": 89.79,
+          "firstBodyMs": 101.57,
+          "totalMs": 1369.78,
+          "maxChunkGapMs": 83.57,
+          "bytes": 23290
+        }
+      },
+      "samples": {
+        "direct": [
+          {
+            "headersMs": 0.6562919999996666,
+            "firstBodyMs": 11.679124999998749,
+            "totalMs": 1090.7802090000005,
+            "maxChunkGapMs": 12.186208000002807,
+            "bytes": 23290
+          },
+          {
+            "headersMs": 0.47925000000032014,
+            "firstBodyMs": 11.586624999999913,
+            "totalMs": 1097.885707999998,
+            "maxChunkGapMs": 12.071500000001834,
+            "bytes": 23290
+          },
+          {
+            "headersMs": 0.8607080000001588,
+            "firstBodyMs": 12.165415999999823,
+            "totalMs": 1093.6452500000014,
+            "maxChunkGapMs": 13.433917000002111,
+            "bytes": 23290
+          },
+          {
+            "headersMs": 0.41570900000078836,
+            "firstBodyMs": 11.704459000000497,
+            "totalMs": 1080.7405840000065,
+            "maxChunkGapMs": 11.496333000002778,
+            "bytes": 23290
+          },
+          {
+            "headersMs": 1.4312499999941792,
+            "firstBodyMs": 12.628082999995968,
+            "totalMs": 1087.1387079999986,
+            "maxChunkGapMs": 11.599417000004905,
+            "bytes": 23290
+          },
+          {
+            "headersMs": 0.4272080000009737,
+            "firstBodyMs": 11.652207999999519,
+            "totalMs": 1081.1520830000009,
+            "maxChunkGapMs": 11.622000000003027,
+            "bytes": 23290
+          }
+        ],
+        "tunnel": [
+          {
+            "headersMs": 81.08633299999929,
+            "firstBodyMs": 90.39087500000096,
+            "totalMs": 1247.5407080000004,
+            "maxChunkGapMs": 84.18029200000092,
+            "bytes": 23290
+          },
+          {
+            "headersMs": 84.92329099999915,
+            "firstBodyMs": 98.40875000000233,
+            "totalMs": 1381.2620830000014,
+            "maxChunkGapMs": 76.55641699999978,
+            "bytes": 23290
+          },
+          {
+            "headersMs": 89.78537499999948,
+            "firstBodyMs": 101.57108299999891,
+            "totalMs": 1369.7757079999974,
+            "maxChunkGapMs": 80.9273749999993,
+            "bytes": 23290
+          },
+          {
+            "headersMs": 140.75520899999538,
+            "firstBodyMs": 146.75295899999765,
+            "totalMs": 1398.7842089999976,
+            "maxChunkGapMs": 90.03591600000073,
+            "bytes": 23290
+          },
+          {
+            "headersMs": 74.54366700000537,
+            "firstBodyMs": 84.4814170000027,
+            "totalMs": 1239.767209000005,
+            "maxChunkGapMs": 83.57058300000062,
+            "bytes": 23290
+          },
+          {
+            "headersMs": 147.40108299999702,
+            "firstBodyMs": 147.44062499999563,
+            "totalMs": 1317.3482499999955,
+            "maxChunkGapMs": 86.41212500000256,
+            "bytes": 23290
+          }
+        ]
+      }
+    }
+  ]
+}

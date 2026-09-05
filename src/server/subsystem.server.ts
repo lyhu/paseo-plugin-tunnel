@@ -422,6 +422,7 @@ export class TunnelSubsystem {
     return {
       activeDataConnections:
         this.#ingressRuntime?.getMetrics().activeDataConnections ?? 0,
+      activeRequests: this.#ingressRuntime?.getMetrics().activeRequests ?? 0,
     };
   }
 

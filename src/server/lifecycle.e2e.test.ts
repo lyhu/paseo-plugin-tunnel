@@ -19,6 +19,13 @@ import { IngressRuntime } from "./ingress-runtime.server.js";
 import { generateKeyPair } from "@getpaseo/relay/e2ee";
 import { parseRouteOffer } from "./offer.server.js";
 
+// This test replaces listeners on the same port; avoid reusing a socket
+// from the listener that was deliberately stopped.
+const fetch: typeof globalThis.fetch = (input, init) =>
+  globalThis.fetch(input, {
+    ...init,
+    headers: { ...init?.headers, Connection: "close" },
+  });
 let relay: RelayHarness;
 let root: string;
 beforeAll(async () => {

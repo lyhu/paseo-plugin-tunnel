@@ -2,13 +2,17 @@
 
 [English](../README.md) · [设计文档](design.md) · [安装说明](installation.md) · [更新日志](../CHANGLOG.md)
 
-独立的 Paseo HTTP 服务代理插件。内网机器运行 Ingress，公网机器运行 Egress，通过 Relay 和端到端加密通道转发 HTTP 请求。
+Paseo HTTP Tunnel 用于在你管理或获授权的 Paseo Host 之间安全连接 HTTP/HTTPS 服务。服务所在的 Host 运行 Ingress，需要访问服务的另一台 Host 运行 Egress；请求通过 Relay 和端到端加密通道传输。
 
 ```text
 HTTP 调用方 → Egress → Relay（加密数据）→ Ingress → 内网 HTTP / HTTPS 服务
 ```
 
-插件在左侧主导航提供 **HTTP Tunnel**（Network 图标），每个页面只操作所选 Host。两台 Host 之间通过 Route Offer 复制 / 导入配置，无需跨 Host RPC。
+插件在左侧主导航提供 **HTTP Tunnel**（Network 图标），每个页面只操作所选 Host。两台受信任的 Host 通过 Route Offer 复制 / 导入连接配置，无需让两端同时打开管理页面。
+
+基于 [Paseo](https://paseo.sh/) 插件机制构建 · [Paseo 官方仓库](https://github.com/getpaseo/paseo)
+
+性能测量与复现方法见 [Benchmark 报告](benchmark.md)。
 
 ## 安装
 
@@ -17,9 +21,12 @@ HTTP 调用方 → Egress → Relay（加密数据）→ Ingress → 内网 HTTP
 ```bash
 paseo plugin install https://github.com/lyhu/paseo-plugin-tunnel --ref main
 paseo plugin ls
+paseo plugin status http-tunnel --json
 ```
 
-如宿主插件系统未开启，在 **Settings → Plugins** 启用。插件属于受信任、未沙箱化代码：服务端及安装命令在 Host 上执行，客户端贡献在 Paseo 内运行。私有仓库需要 daemon 所在机器具备 Git 访问凭据。
+确认状态输出为 `source: "git"`、`ref: "main"`。从本地 checkout 路径安装的插件属于目录来源，即使目录包含 `.git` 且插件正常运行，也不能使用 `paseo plugin update` 更新。
+
+如宿主插件系统未开启，在 **Settings → Plugins** 启用。Paseo 将插件作为受信任的 Host 扩展加载：服务端代码和安装命令使用 daemon 用户的权限运行，客户端页面在 Paseo 内运行。请先审阅源码，并只安装到你管理的 Host。私有仓库需要 daemon 所在机器具备 Git 访问凭据。
 
 **不需要预编译、发布 npm 包或上传 Release 附件。** Paseo 克隆源码后，根据 `paseo-plugin.json` 执行运行依赖安装，再编译 `index.ts` 的前后端贡献。`dist` 不是安装入口，用户无需执行 `npm run build`。固定版本与目录安装见 [安装说明](installation.md)。
 
@@ -33,15 +40,19 @@ paseo plugin logs http-tunnel
 
 `paseo plugin reload http-tunnel` 只重载当前源码，不拉取 Git 更新。更新或重载会中断活动 Tunnel 请求，但不需要重启主 daemon。可在安装时使用 `--ref <tag-or-commit>` 固定已审阅版本。
 
-## 三步配置
+## 使用方法
 
-在本地 Paseo UI 中即可管理已连接的远程 Host，远程只需运行 daemon。先在各 Host 安装并启用 `http-tunnel`；当多个 Host 提供该插件时，页面顶部会出现 Host 切换器。选中 Host 后，操作通过其已有的 Paseo 连接发送，可经 Relay 到达远程。详见[远程 Host 安装](installation.md#remote-hosts)。
+在本地 Paseo UI 中即可管理已连接的远程 Host，远程只需运行 daemon。先在各 Host 安装并启用 `http-tunnel`。
 
-1. **选择 Ingress Host**：打开 HTTP Tunnel，选择 **Add Ingress**，填写名称和该 Host 可访问的服务 Origin，例如 `http://127.0.0.1:3000`。此处 `127.0.0.1` 指选中的 Host。Origin 只包含协议、主机和端口。
-2. 点击 **Copy Route Offer**。页面对 `relayEndpoint`、`tunnelPublicKeyB64` 和 `routeSecret` 做中间脱敏；“复制”按钮获取用于导入的完整 JSON。Offer 包含访问密钥，须私下传给 Egress 管理者，它不是加密文件。
-3. **切换到 Egress Host**：选择 **Add Egress**，粘贴 Offer，核对来源服务与建议端口，选择监听范围和认证方式。保存后立即展示一次性 Access Token。
+**Host 切换器位于 HTTP Tunnel 页面右上角。** 多个已连接 Host 安装并运行插件后，可在这里切换当前管理的 Host。页面中的 Ingresses、Egresses、表单、状态检查和快速验证都属于右上角当前选中的 Host。切换 Host 只会改变 RPC 的目标，不会在 Host 之间复制规则。若切换器中只有一台 Host，请检查其他 Host 是否已连接，以及 `http-tunnel` 是否已经安装并处于 running 状态。详见[远程 Host 安装](installation.md#remote-hosts)。
 
-创建 Egress 不要求 Ingress 同时在线；实际转发时两端和 Relay 都必须可达。若希望调用方从外部网络连接，监听范围选择 **Network / public**，并配置防火墙和 HTTPS 反向代理。
+1. 从 Paseo 左侧导航栏打开 **HTTP Tunnel**，在页面**右上角 Host 切换器**中选择能够访问内网服务的机器。
+2. 点击 **Add Ingress**，填写名称和当前 Host 可访问的服务 Origin，例如 `http://127.0.0.1:3000`。此处 `127.0.0.1` 指右上角选中的 Host。Origin 只包含协议、主机和端口。
+3. 点击 **Copy Route Offer**。页面对 `relayEndpoint`、`tunnelPublicKeyB64` 和 `routeSecret` 做中间脱敏；“复制”按钮获取用于导入的完整 JSON。Offer 是包含连接信息的配置，请只交给目标 Egress Host 的管理员，并通过可信渠道传递。
+4. 在页面**右上角 Host 切换器**中切换到 Egress 机器，点击 **Add Egress**，粘贴 Offer，核对来源服务与建议端口，选择监听范围和认证方式。保存后立即展示一次性 Access Token。
+5. 展开 Egress 下方的 **curl / 快速验证**，复制请求示例，或从当前选中的 Egress Host 验证链路。
+
+创建 Egress 不要求 Ingress 同时在线；实际使用时两端和 Relay 都必须可达。监听默认限制在 Egress 本机。只有获授权的网络客户端确有需要时，才选择 **Network / public**，并按该服务原有的安全要求配置防火墙、访问策略和 HTTPS 反向代理。
 
 新建 Egress 默认选择 **无认证**，选项顺序为无认证、Access Token、Bearer。需要出口鉴权时，可选择 **Access Token** 模式：
 
@@ -49,7 +60,7 @@ paseo plugin logs http-tunnel
 curl -H 'X-Paseo-Access-Token: YOUR_TOKEN' http://EGRESS_HOST:8080/api/health
 ```
 
-Bearer 模式使用 `Authorization: Bearer YOUR_TOKEN`。代理认证头不会转发到内网服务；如果后端 API 本身需要 `Authorization`，选择 Access Token 模式，以保留后端认证头。
+Bearer 模式使用 `Authorization: Bearer YOUR_TOKEN`。插件访问认证头不会转发到目标服务；如果后端 API 本身需要 `Authorization`，选择 Access Token 模式，以保留后端认证头。
 
 **Manage** 提供编辑、启停、删除、轮换密钥和替换 Offer。轮换 Ingress secret 后，需要在每个 Egress 导入新 Offer；轮换 Egress token 后，调用方需要更新 Token。Token 仅在生成时完整展示，当前页面可临时复用；关闭页面后，丢失的 Token 需重新生成。
 
@@ -103,13 +114,15 @@ Paseo 0.7.2 的插件 SDK 没有 locale 接口，因此插件只读 `@paseo:app-
 
 安装到多台机器时，各自使用独立配置。在同一个 `PASEO_HOME` 下只安装一个 http-tunnel 实例，避免争用配置和端口。监听端口不得与其他服务冲突。
 
-## 传输与边界
+## 适用场景与技术边界
 
-- 支持 HTTP 方法、路径、查询参数、重复响应头、流式上传 / 下载和 SSE；内网目标支持 HTTPS，保持证书验证。
+HTTP Tunnel 适合在受信任的 Paseo Host 之间连接开发服务、内部 API、运维面板、模型服务及其他经过批准的工作负载。请在你拥有或获授权管理的 Host、服务、网络和数据范围内使用。
+
+- 支持 HTTP 方法、路径、查询参数、重复响应头、流式上传 / 下载和 SSE；目标服务支持 HTTPS，保持证书验证。
 - 每个方向最多 8 个未确认的 64 KiB 数据块，Body 不整体缓存、不落盘。
 - 每个 Ingress / Egress 运行时最多 128 个数据连接；Egress 最多 256 个 HTTP socket，未完成请求头限制为 10 秒。
-- Egress 提供 HTTP listener。对公网开放时，在它前面部署 HTTPS 反向代理；端到端加密保护的是 Egress 与 Ingress 之间的链路。
-- 不支持 CONNECT、WebSocket Upgrade、HTTP trailers 或任意 TCP 代理。
+- Egress 提供 HTTP listener。需要面向互联网提供经过授权的访问时，在它前面部署 HTTPS 反向代理；端到端加密保护的是 Egress 与 Ingress 之间的链路。
+- 不支持 CONNECT、WebSocket Upgrade、HTTP trailers 或任意 TCP 转发。
 - Relay 断连后 Ingress 自动重连；插件停用 / 重载时关闭监听和连接，重新加载时恢复持久化规则。
 - 修改某个 Ingress 的名称不会重建 Relay 控制连接。更换服务或密钥会中断受影响的请求。
 
@@ -119,7 +132,7 @@ Paseo 0.7.2 的插件 SDK 没有 locale 接口，因此插件只读 `@paseo:app-
 
 ```text
 请在当前 Paseo Host 安装 https://github.com/lyhu/paseo-plugin-tunnel。
-我授权安装并启用此受信任、未沙箱化插件。
+我授权安装并启用此受信任的 Paseo 插件；它使用 daemon 用户的 Host 权限运行。
 
 检查 Paseo CLI、目标 daemon、Git、Node.js 22+、npm 和 GitHub 访问能力；
 确认 paseo plugin install --help 支持 Git 来源与 --ref。
@@ -127,9 +140,18 @@ Paseo 0.7.2 的插件 SDK 没有 locale 接口，因此插件只读 `@paseo:app-
 保留已有 Tunnel 规则和凭据；发现同名插件时报告现状，不自动替换。
 新安装执行：
   paseo plugin install https://github.com/lyhu/paseo-plugin-tunnel --ref main
+必须把 GitHub URL 直接传给 Paseo。不要先 clone 再安装本地路径，
+不要登记为 directory 来源，也不要修改 Paseo 管理的 checkout。
+如果 Git 安装或依赖准备失败，报告脱敏错误并停止；不要擅自改用
+目录安装，也不要通过修改锁文件绕过安装失败。
 如插件系统未开启，使用 Paseo 支持的设置启用。
-使用 paseo plugin ls --json 确认 http-tunnel 为 running，失败时查看
-paseo plugin logs http-tunnel。完成后报告目标 Host 和安装的 commit。
+新安装后必须逐项验证：
+  paseo plugin ls --json                 中 http-tunnel 为 running
+  paseo plugin status http-tunnel --json 中 source=git、ref=main、remote 为
+                                        指定 GitHub 仓库，并包含 currentCommit
+  paseo plugin update http-tunnel        执行成功（无需更新也算成功）
+仅 running 不能判定安装完成。失败时查看 paseo plugin logs http-tunnel，
+不要输出凭据。完成后报告目标 Host、source、ref、commit 和更新验证结果。
 不要重启主 daemon、创建 Tunnel 规则、开放公网端口、输出凭据、
 发布 npm 包，或生成和上传 dist。只有目标 Host、认证或访问权限
 不足时，才询问缺失的信息。

@@ -1,0 +1,89 @@
+{
+  "date": "2026-09-05",
+  "samples": [
+    {
+      "label": "tunnel-before",
+      "httpStatus": 200,
+      "error": null,
+      "headersMs": 2007.016541,
+      "firstEventMs": 2078.2880410000002,
+      "firstOutputMs": 2078.386125,
+      "firstTextMs": 2078.386125,
+      "totalMs": 9855.966083000001,
+      "lastOutputMs": 9386.497000000001,
+      "events": 460,
+      "chunks": 89,
+      "bytes": 56838,
+      "chars": 1371,
+      "thinkingChars": 0,
+      "textChars": 1371,
+      "outputSpanMs": 7308.110875000001,
+      "medianOutputGapMs": 0.0020410000001902517,
+      "p95OutputGapMs": 17.837250000000495,
+      "maxOutputGapMs": 742.2792499999996,
+      "usage": {
+        "input_tokens": 10,
+        "output_tokens": 757
+      },
+      "stopReason": "end_turn",
+      "streamComplete": true,
+      "errors": []
+    },
+    {
+      "label": "tunnel-after",
+      "httpStatus": 200,
+      "error": null,
+      "headersMs": 2575.911208,
+      "firstEventMs": 2643.6054160000003,
+      "firstOutputMs": 2643.701208,
+      "firstTextMs": 2643.701208,
+      "totalMs": 10476.914332999999,
+      "lastOutputMs": 9991.194207999999,
+      "events": 361,
+      "chunks": 103,
+      "bytes": 44557,
+      "chars": 1037,
+      "thinkingChars": 0,
+      "textChars": 1037,
+      "outputSpanMs": 7347.492999999999,
+      "medianOutputGapMs": 0.0033329999996567494,
+      "p95OutputGapMs": 185.7699160000002,
+      "maxOutputGapMs": 611.9951669999991,
+      "usage": {
+        "input_tokens": 10,
+        "output_tokens": 589
+      },
+      "stopReason": "end_turn",
+      "streamComplete": true,
+      "errors": []
+    },
+    {
+      "label": "tunnel-after",
+      "httpStatus": 200,
+      "error": null,
+      "headersMs": 457.027209,
+      "firstEventMs": 534.7597089999999,
+      "firstOutputMs": 534.805625,
+      "firstTextMs": 534.805625,
+      "totalMs": 8103.713334,
+      "lastOutputMs": 7594.149125000001,
+      "events": 456,
+      "chunks": 106,
+      "bytes": 56306,
+      "chars": 1340,
+      "thinkingChars": 0,
+      "textChars": 1340,
+      "outputSpanMs": 7059.343500000001,
+      "medianOutputGapMs": 0.0019160000001647859,
+      "p95OutputGapMs": 18.117166999999995,
+      "maxOutputGapMs": 708.992667,
+      "usage": {
+        "input_tokens": 10,
+        "output_tokens": 754
+      },
+      "stopReason": "end_turn",
+      "streamComplete": true,
+      "errors": []
+    }
+  ]
+}

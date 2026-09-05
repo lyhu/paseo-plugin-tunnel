@@ -106,15 +106,13 @@ function cancelAfterFirstChunk(port: number): Promise<void> {
   });
 }
 
-async function waitForIdleDataConnections(
-  runtime: TunnelSubsystem,
-): Promise<void> {
+async function waitForIdleRequests(runtime: TunnelSubsystem): Promise<void> {
   const deadline = Date.now() + 2_000;
   while (Date.now() < deadline) {
-    if (runtime.getMetrics().activeDataConnections === 0) return;
+    if (runtime.getMetrics().activeRequests === 0) return;
     await new Promise((resolve) => setImmediate(resolve));
   }
-  throw new Error("Tunnel data connections did not become idle");
+  throw new Error("Tunnel requests did not become idle");
 }
 
 describe("Tunnel E2E", () => {
@@ -316,8 +314,8 @@ describe("Tunnel E2E", () => {
     const egress = state.egresses[0]!;
 
     await cancelAfterFirstChunk(egress.listen.port);
-    await waitForIdleDataConnections(subsystem);
-    expect(subsystem.getMetrics()).toEqual({ activeDataConnections: 0 });
+    await waitForIdleRequests(subsystem);
+    expect(subsystem.getMetrics().activeRequests).toBe(0);
   }, 10_000);
 
   it("validates access token in header mode", async () => {

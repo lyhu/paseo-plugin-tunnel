@@ -56,10 +56,12 @@ type IngressControlMessage =
 export interface IngressMetrics {
   activeDataConnections: number;
   totalDataConnections: number;
+  activeRequests: number;
 }
 
 interface PendingAcknowledgement {
   bytes: number;
+  completed: Promise<void>;
   resolve: () => void;
   reject: (error: Error) => void;
 }
@@ -154,6 +156,9 @@ export class IngressRuntime {
     return {
       activeDataConnections: this.#dataConnections.size,
       totalDataConnections: this.#totalDataConnections,
+      activeRequests: Array.from(this.#dataConnections.values()).filter(
+        (conn) => conn.routeId !== null,
+      ).length,
     };
   }
 
@@ -517,6 +522,7 @@ export class IngressRuntime {
         void acknowledgement.catch(() => undefined);
         conn.pendingResponseAcks.push({
           bytes: frame.byteLength,
+          completed: acknowledgement,
           resolve: resolveAcknowledgement,
           reject: rejectAcknowledgement,
         });
@@ -530,7 +536,7 @@ export class IngressRuntime {
         );
 
         if (conn.pendingResponseAcks.length >= FLOW_WINDOW_CHUNKS) {
-          await acknowledgement;
+          await conn.pendingResponseAcks[0].completed;
         }
         finalAcknowledgement = acknowledgement;
       }

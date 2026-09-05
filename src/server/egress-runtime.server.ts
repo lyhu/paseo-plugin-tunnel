@@ -47,20 +47,26 @@ export interface EgressRuntimeOptions {
   };
   onMetrics?: (metrics: EgressMetrics) => void;
   readyTimeoutMs?: number;
+  preconnectCount?: 0 | 1 | 2;
+  preconnectIdleMs?: number;
 }
 
 export interface EgressMetrics {
   activeDataConnections: number;
   totalDataConnections: number;
+  preparedConnections: number;
+  preconnectHits: number;
 }
 
 interface PendingAcknowledgement {
   bytes: number;
+  completed: Promise<void>;
   resolve: () => void;
   reject: (error: Error) => void;
 }
 
 interface DataConnection {
+  id: string;
   ws: WebSocket;
   channel: EncryptedChannel | null;
   requestWindow: TunnelCreditWindow;
@@ -69,6 +75,10 @@ interface DataConnection {
   responseOrder: TunnelStreamOrder;
   finished: boolean;
   readyTimeout: ReturnType<typeof setTimeout> | null;
+  idleTimeout: ReturnType<typeof setTimeout> | null;
+  request: { req: IncomingMessage; res: ServerResponse } | null;
+  started: boolean;
+  fail: () => void;
 }
 
 export class EgressRuntime {
@@ -86,6 +96,11 @@ export class EgressRuntime {
   #onMetrics?: (metrics: EgressMetrics) => void;
   #totalDataConnections = 0;
   #readyTimeoutMs: number;
+  #preconnectCount: number;
+  #preconnectIdleMs: number;
+  #prepared: DataConnection[] = [];
+  #preconnectHits = 0;
+  #stopped = true;
 
   constructor(options: EgressRuntimeOptions) {
     this.#listen = options.listen;
@@ -98,6 +113,8 @@ export class EgressRuntime {
     this.#access = options.access;
     this.#onMetrics = options.onMetrics;
     this.#readyTimeoutMs = options.readyTimeoutMs ?? 8_000;
+    this.#preconnectCount = options.preconnectCount ?? 2;
+    this.#preconnectIdleMs = options.preconnectIdleMs ?? 30_000;
 
     this.#server = createServer((req, res) => {
       void this.#handleRequest(req, res);
@@ -135,11 +152,15 @@ export class EgressRuntime {
     if (addr && typeof addr !== "string") {
       this.#actualPort = addr.port;
     }
+    this.#stopped = false;
+    this.#prepareConnections();
   }
 
   async stop(): Promise<void> {
+    this.#stopped = true;
+    this.#prepared = [];
     for (const conn of this.#dataConnections.values()) {
-      conn.ws.terminate();
+      conn.fail();
     }
     this.#dataConnections.clear();
     await new Promise<void>((resolve) => {
@@ -156,6 +177,10 @@ export class EgressRuntime {
     return {
       activeDataConnections: this.#dataConnections.size,
       totalDataConnections: this.#totalDataConnections,
+      preparedConnections: this.#prepared.filter((conn) =>
+        conn.channel?.isOpen(),
+      ).length,
+      preconnectHits: this.#preconnectHits,
     };
   }
 
@@ -208,12 +233,55 @@ export class EgressRuntime {
       }
     }
 
-    if (this.#dataConnections.size >= 128) {
+    if (
+      this.#stopped ||
+      (this.#dataConnections.size >= 128 && this.#prepared.length === 0)
+    ) {
       res.writeHead(503, { Connection: "close" });
       res.end("Tunnel capacity reached");
       return;
     }
 
+    const ready = this.#prepared.findIndex((conn) => conn.channel?.isOpen());
+    const conn =
+      this.#prepared.splice(Math.max(ready, 0), 1)[0] ??
+      this.#createConnection();
+    if (conn.channel?.isOpen()) this.#preconnectHits++;
+    if (conn.idleTimeout) clearTimeout(conn.idleTimeout);
+    conn.idleTimeout = null;
+    conn.request = { req, res };
+    req.pause();
+    req.once("aborted", conn.fail);
+    res.once("close", () => conn.ws.terminate());
+    this.#startPreparedRequest(conn);
+    this.#prepareConnections();
+  }
+
+  // Each prepared channel is leased once. No HTTP request, token or body is cached.
+  // Expired/failed idle channels are replenished only by subsequent authenticated traffic.
+  #prepareConnections(): void {
+    while (
+      !this.#stopped &&
+      this.#prepared.length < this.#preconnectCount &&
+      this.#dataConnections.size < 128
+    ) {
+      this.#prepared.push(this.#createConnection());
+    }
+  }
+
+  #startPreparedRequest(conn: DataConnection): void {
+    if (
+      conn.finished ||
+      conn.started ||
+      !conn.request ||
+      !conn.channel?.isOpen()
+    )
+      return;
+    conn.started = true;
+    void this.#handleE2EEOpen(conn.id, conn.request.req).catch(conn.fail);
+  }
+
+  #createConnection(): DataConnection {
     const connectionId = `tunnel-${randomUUID()}`;
     const url = this.#buildRelayUrl("client", connectionId);
     const ws = new WebSocket(url, {
@@ -223,6 +291,7 @@ export class EgressRuntime {
     this.#totalDataConnections++;
 
     const conn: DataConnection = {
+      id: connectionId,
       ws,
       channel: null,
       requestWindow: new TunnelCreditWindow(),
@@ -231,32 +300,40 @@ export class EgressRuntime {
       responseOrder: new TunnelStreamOrder(),
       finished: false,
       readyTimeout: null,
+      idleTimeout: null,
+      request: null,
+      started: false,
+      fail: () => failRequest(),
     };
     this.#dataConnections.set(connectionId, conn);
     this.#emitMetrics();
 
     const cleanup = () => {
       if (conn.readyTimeout) clearTimeout(conn.readyTimeout);
+      if (conn.idleTimeout) clearTimeout(conn.idleTimeout);
+      this.#prepared = this.#prepared.filter((item) => item !== conn);
       rejectPendingAcknowledgements(conn.pendingRequestAcks);
       if (!this.#dataConnections.delete(connectionId)) return;
       this.#emitMetrics();
     };
 
     const failRequest = () => {
-      if (conn.finished) return;
+      if (conn.finished) {
+        ws.terminate();
+        cleanup();
+        return;
+      }
       conn.finished = true;
-      req.resume();
+      conn.request?.req.resume();
       rejectPendingAcknowledgements(conn.pendingRequestAcks);
-      sendBadGateway(res);
+      if (conn.request) sendBadGateway(conn.request.res);
       ws.terminate();
       cleanup();
     };
 
     conn.readyTimeout = setTimeout(failRequest, this.#readyTimeoutMs);
-
-    req.pause();
-    req.once("aborted", () => ws.terminate());
-    res.once("close", () => ws.terminate());
+    conn.idleTimeout = setTimeout(failRequest, this.#preconnectIdleMs);
+    conn.idleTimeout.unref();
 
     ws.once("error", failRequest);
 
@@ -273,17 +350,23 @@ export class EgressRuntime {
           {
             onopen: () => {
               if (conn.readyTimeout) clearTimeout(conn.readyTimeout);
-              void this.#handleE2EEOpen(connectionId, req).catch(failRequest);
+              this.#startPreparedRequest(conn);
             },
-            onmessage: (data) => this.#handleMessage(connectionId, data, res),
+            onmessage: (data) => {
+              if (conn.request)
+                this.#handleMessage(connectionId, data, conn.request.res);
+              else failRequest();
+            },
             onclose: failRequest,
             onerror: failRequest,
           },
         );
+        this.#startPreparedRequest(conn);
       } catch {
         failRequest();
       }
     });
+    return conn;
   }
 
   async #handleE2EEOpen(
@@ -340,6 +423,7 @@ export class EgressRuntime {
         void acknowledgement.catch(() => undefined);
         conn.pendingRequestAcks.push({
           bytes: frame.byteLength,
+          completed: acknowledgement,
           resolve: resolveAcknowledgement,
           reject: rejectAcknowledgement,
         });
@@ -353,7 +437,7 @@ export class EgressRuntime {
         );
 
         if (conn.pendingRequestAcks.length >= FLOW_WINDOW_CHUNKS) {
-          await acknowledgement;
+          await conn.pendingRequestAcks[0].completed;
         }
         finalAcknowledgement = acknowledgement;
       }
