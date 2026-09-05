@@ -1,0 +1,44 @@
+name: Publish GitHub Release
+
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Existing version tag to publish
+        required: true
+        type: string
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ github.token }}
+      RELEASE_TAG: ${{ inputs.tag || github.ref_name }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ env.RELEASE_TAG }}
+      - name: Validate release inputs
+        run: |
+          [[ "$RELEASE_TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]
+          test -f "docs/releases/$RELEASE_TAG.md"
+      - name: Publish release
+        run: |
+          if gh release view "$RELEASE_TAG" >/dev/null 2>&1; then
+            gh release edit "$RELEASE_TAG" \
+              --title "Paseo HTTP Tunnel $RELEASE_TAG" \
+              --notes-file "docs/releases/$RELEASE_TAG.md" \
+              --latest
+          else
+            gh release create "$RELEASE_TAG" \
+              --verify-tag \
+              --title "Paseo HTTP Tunnel $RELEASE_TAG" \
+              --notes-file "docs/releases/$RELEASE_TAG.md" \
+              --latest
+          fi
