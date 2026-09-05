@@ -1,110 +1,148 @@
-# HTTP Tunnel 插件设计
+# Paseo HTTP Tunnel 架构与协议设计
 
-## 目标与范围
+本文档阐述 Paseo HTTP Tunnel 的技术目标、系统架构、流控机制、安全模型与生命周期设计。
 
-HTTP Tunnel 在用户管理或获授权的 Paseo Host 之间建立一条面向固定 HTTP/HTTPS 服务的受控连接。Egress 提供 HTTP 监听端口，Ingress 访问目标服务；连接支持请求体、响应体、二进制数据及 SSE 的流式传输。插件不依赖 Workspace 或 Agent，由 Paseo 承载安装、进程生命周期、控制连接和客户端页面。
+---
 
-产品面向开发服务、内部 API、运维面板和模型服务等经过管理员批准的工作负载。默认只允许 Egress 本机访问；扩展到其他网络接口是管理员的明确选择。插件不提供通用网络扫描、任意目标选择或任意 TCP 转发能力。
+## 1. 目标与设计原则
 
-一个 Ingress 对应一个目标 Origin，可供多个 Egress 使用。一个 Egress 持有一份 Route Offer，只连接一个 Ingress。同一 Host 可同时承担两个角色，数据仍经过 Relay。
+HTTP Tunnel 用于在受信任的 Paseo Host 之间建立面向固定 HTTP/HTTPS 服务的端到端加密通道：
+- **受控访问**：面向开发测试、内部运维面板、专用 API 及私有大模型服务等授权工作负载。
+- **职责分工**：**Ingress** 贴近目标服务 Origin 运行；**Egress** 提供本地 HTTP 监听端口，供客户端透明调用。
+- **独立于应用会话**：不依赖 Workspace 或特定的 Agent 运行状态；后台 daemon 与插件进程维持服务可用性。
+- **明确的技术边界**：不支持任意网段扫描、任意 TCP 代理、CONNECT 隧道或 WebSocket Upgrade；目标服务由 Ingress 规则固定指定。
 
-## 架构
+### 核心规格与参数速查
+
+| 指标维度 | 规格参数 | 说明 |
+| :--- | :--- | :--- |
+| **流控窗口** | $8 \times 64\text{ KiB}$ | 双向未确认数据上限；最早块 ACK 后立即滑动。 |
+| **通道复用模型** | 单通道单请求 (1:1) | 每个 HTTP 请求独占一条 E2EE 加密通道与 Relay 连接。 |
+| **预连接池** | 最多 2 条空闲通道 | 预先完成 Relay 与 E2EE 握手；空闲 30s 自动过期回收。 |
+| **连接与并发上限** | 128 / 256 | 每个 Runtime 最多 128 条数据通道；每个 Egress 最多 256 个并发 Socket。 |
+| **超时保护** | 10s / 8s | HTTP 请求头接收超时 10s；连通性探测超时 8s。 |
+| **配置存储** | `0600` 权限 JSON | 独立存储于 `$PASEO_HOME/tunnel/config.json`，原子刷盘更新。 |
+
+---
+
+## 2. 总体架构拓扑
+
+系统区分**控制面**与**数据面**：数据流不经过宿主控制信道，但插件 RPC 处理和数据面逻辑仍运行在同一个插件子进程中：
 
 ```mermaid
 flowchart LR
-    Caller[调用方] -->|HTTP| E[Egress 插件进程]
-    E <-->|加密数据连接| R[Relay]
-    R <-->|加密数据连接| I[Ingress 插件进程]
-    I -->|HTTP / HTTPS| Target[固定目标 Origin]
-    UI[Paseo 插件页面] -. 当前 Host 的类型化 RPC .-> E
-    UI -. 当前 Host 的类型化 RPC .-> I
+    Caller[HTTP 调用方] -->|明文 HTTP| E[Egress 插件进程]
+    E <-->|端到端加密通道| R[Relay 中继服务]
+    R <-->|端到端加密通道| I[Ingress 插件进程]
+    I -->|HTTP / HTTPS| Target[目标服务 Origin]
+
+    subgraph 控制面 [宿主控制面]
+        UI[Paseo 客户端 UI] -.->|类型化 RPC| E
+        UI -.->|类型化 RPC| I
+    end
 ```
 
-- **控制面**：React Native 页面通过 Paseo 的连接调用插件 RPC，管理所选 Host 的配置、凭据和状态。跨 Host 配置只通过 Route Offer 复制与导入完成。
-- **数据面**：独立 Node.js 子进程直接持有 HTTP listener、WebSocket 和加密通道，服务流量不经过 App 或控制面 RPC。
-- **宿主边界**：Paseo 管理侧边栏入口、Host 选择、主题、模块编译及进程启停。插件管理完整页面、网络资源与独立配置。插件作为受信任的 Host 扩展运行，使用 daemon 用户的权限；独立进程用于生命周期隔离，不构成操作系统权限沙箱。
+### 控制面与数据面分离
 
-关闭 App 不影响已配置的服务连接；运行所需条件是两端 daemon、插件进程、Relay 和目标服务均可达。
+- **控制面 (Control Plane)**：
+  - 基于 React Native 构建，嵌于 Paseo 宿主应用内。
+  - 通过 Paseo 类型化 RPC 管理配置、查看运行时状态、触发密钥轮换。
+  - 跨 Host 配置**仅通过 Route Offer 的显式复制与导入**实现，两端无需在控制面上产生跨机直接依赖。
+- **数据面 (Data Plane)**：
+  - 由独立的 Node.js 子进程直接管理 HTTP Listener、WebSocket 控制连接和加解密引擎。
+  - 数据传输完全由插件进程与 Relay 直接交互，**数据流量不流经 Paseo 桌面客户端或主 Daemon 控制信道**。
+- **权限与宿主边界**：
+  - 插件作为受信任扩展运行，继承宿主 Daemon 用户的操作系统权限。
+  - 进程隔离用于资源与生命周期管理，不构成操作系统的权限沙箱。
 
-## 配置模型与凭据
+---
 
-| 对象 | 职责与边界 |
-| --- | --- |
-| Tunnel identity | 独立的服务标识和加密密钥对；不复用 Paseo 控制身份。 |
-| Ingress | 名称、启用状态、固定 Origin、route ID 和 route secret。Origin 不含路径、查询参数或用户信息。 |
-| Route Offer | Relay 地址、Tunnel 公钥、route ID/secret、来源显示名称与建议端口。它是供指定 Egress 导入的连接配置，包含敏感连接信息，本身不是加密文件。 |
-| Egress | 名称、启用状态、监听地址与端口、Route Offer、认证模式及 Token 哈希。 |
-| Access Token | 只授权访问单个 Egress，不授予 Paseo 控制权限；明文仅由创建或轮换操作返回。 |
+## 3. 配置模型与安全凭据
 
-Route Offer 的名称和建议端口是导出时的快照，不建立实时跨 Host 依赖。导入时不要求 Ingress 在线。轮换 route secret 后需手动替换所有相关 Egress 的 Offer；删除 Ingress 不删除远端 Egress。轮换 Access Token 不影响 Route Offer。
+| 实体对象 | 字段构成 | 作用域与安全性 |
+| :--- | :--- | :--- |
+| **Tunnel Identity** | Curve25519 密钥对 | 独立于 Paseo 宿主身份；Egress 通过 Offer 固定 Ingress 公钥，使用临时客户端密钥协商 E2EE 通道，并以 Route Secret 获得路由访问权限。 |
+| **Ingress 规则** | 规则名、启用状态、固定 Origin、Route ID 与 Secret | Origin 仅包含协议、主机与端口（不含 Path/Query/Auth），避免重写篡改。 |
+| **Route Offer** | Relay 地址、公钥、Route ID/Secret、推荐端口 | 跨主机连接凭证；包含端到端解密所需参数，必须通过可信信道分发。 |
+| **Egress 规则** | 规则名、监听端口、绑定的 Offer、认证模式与 Token 哈希 | 负责本地 Listener 绑定及入口访问鉴权。 |
+| **Access Token** | 高随机度令牌（存储 SHA-256 哈希） | 仅用于客户端访问指定 Egress；不授予任何 Paseo 控制权限。 |
 
-## 请求与流控
+> [!IMPORTANT]
+> - **Route Offer 是连接凭据**：其内容属于敏感信息。导出时在界面中脱敏显示，点击复制时获取完整 JSON。
+> - **凭据生命周期解耦**：轮换 Ingress Route Secret 会使已派发的 Offer 失效，需在各 Egress 重新导入；轮换 Egress Access Token 仅影响外部调用方，无需重新生成 Offer。
 
-1. Egress 验证 HTTP 请求和访问凭据。
-2. 每个请求独占一条 Relay 数据连接及 E2EE 通道，优先领取预先完成握手的空闲通道；Ingress 通过共享 Relay 控制连接接入。
-3. Egress 固定 Route Offer 中的 Ingress 公钥。Ingress 在加密通道内验证 route ID 和 secret，再请求本地配置的 Origin。
-4. 双向传输请求与响应元数据、二进制数据块和确认帧；请求完成或任一侧断开时释放关联资源，不自动重试。
+---
 
-每条通道仅承载一个 HTTP 请求。`request.head` / `response.head` 传递元数据，二进制帧承载 Body，`request.ack` / `response.ack` 提供双向流控，结束帧标记流结束。协议校验帧顺序和确认字节数。
+## 4. 传输协议与流控机制
 
-每个方向最多允许 8 个未确认的 64 KiB 数据块。窗口耗尽时暂停上游读取，最早的未确认块得到确认后继续发送，无需等待整批确认；接收端处理下游写入及 `drain` 后确认。该窗口约束未确认的应用数据，不代表整个进程或网络栈的内存上限。Body 不整体聚合或落盘。
+### 4.1 通道生命周期与预连接池
 
-Egress 启动及已认证请求领取通道后，最多预建 2 条空闲通道，计入两端连接上限。预建只完成 Relay 与 E2EE 握手，不向目标发请求；领取前仍须通过 Egress 访问认证，领取后才发送 route 凭据。空闲通道创建 30 秒后过期，失败或过期不触发后台循环补充，后续已认证请求可重新补充。连接失效不自动重放请求。插件不缓存 HTTP 响应、请求体或业务 Token。
+1. **通道领取**：客户端向 Egress 发起 HTTP 请求并通过前置认证后，优先从预连接池领取一条已完成 Relay 和 E2EE 握手的空闲通道；若无可用通道则即时新建。
+2. **路由鉴权**：Egress 锁定 Offer 内绑定的 Ingress 公钥，在加密通道内发送 Route ID 与 Secret 进行对端校验。
+3. **请求转发**：Ingress 验证路由通过后，向本地配置的 Origin 发起标准 HTTP/HTTPS 请求。
+4. **资源释放**：单个请求处理完毕或任一侧异常断开时，立即销毁通道及底层连接，**不进行隐式静默重试**（防止非幂等 POST 重复提交）。
 
-每个 Ingress/Egress runtime 最多持有 128 个数据连接；每个 Egress 最多接受 256 个 HTTP socket，未完成请求头限时 10 秒。SSE 随响应数据流转发，不等待整个响应结束。
+```text
+Egress 启动 / 认证请求 ──> 异步预建 (最多 2 条) ──> Relay & E2EE 握手完成 ──> 进入池中
+                                                                  │ (30s 无人领取)
+                                                                  ▼
+                                                             超时安全销毁
+```
 
-## HTTP 与安全边界
+### 4.2 滑动窗口流控算法
 
-外部调用只能提供 method、origin-form path、query、headers 和 Body，不能覆盖目标 Origin。保留端到端字段及重复响应头，移除 hop-by-hop 字段与 `Connection` 指定的字段。Ingress 按目标重建 `Host`，并按 Egress 观察到的调用信息重建 `X-Forwarded-*`。目标 HTTPS 使用正常证书验证。
+为了兼顾高吞吐传输与低内存占用，HTTP Tunnel 实现了基于 ACK 的双向滑动窗口机制：
 
-| 认证模式 | Egress 校验 | 转发到内网服务 |
-| --- | --- | --- |
-| Header | `X-Paseo-Access-Token` | 移除 Tunnel Token，保留业务 `Authorization`。 |
-| Bearer | `Authorization: Bearer` | 移除用于 Tunnel 认证的 `Authorization`。 |
-| None | 不校验 Token | 按普通 HTTP 字段规则转发。 |
+- **窗口容量**：每个方向最多允许 **8 个未确认块**（每块最大 64 KiB，最大在途应用数据为 512 KiB）。
+- **滑动策略**：接收端写入下游后回复确认帧；若 `write()` 返回 `false`，则等待 `drain` 后确认。**发送端只要收到最旧块的 ACK 即推进窗口**，无需等待整批确认，大幅消除 SSE 流和文件上传中的卡顿。
+- **内存零落盘**：请求与响应 Body 采用分块流式直推，不进行内存全量聚合，严禁向本地磁盘写入临时数据。
 
-Relay 转发密文，可观察连接标识、时序和长度，不能读取 HTTP 内容或 route secret。Access Token 以 SHA-256 哈希保存，凭据比较使用恒定时间比较。普通状态 RPC 不返回 Token、哈希、Offer 或私钥。
+---
 
-监听默认绑定 loopback，新建 Egress 默认无插件认证；此时访问范围由监听地址及周边网络控制决定。修改已有 Egress 时保留其认证模式。监听全部网卡需管理员主动选择，界面说明可访问范围。Egress 不终止 TLS；面向互联网的 HTTPS 由外部反向代理提供，链路加密不覆盖调用方到 Egress 的明文 HTTP 段。
+## 5. HTTP 语义与网络边界
 
-## 持久化与生命周期
+### 5.1 字段处理规范
 
-配置保存在 `$PASEO_HOME/tunnel/config.json`，默认使用 `~/.paseo/tunnel/config.json`。文件权限为 `0600`，写入通过同目录临时文件、同步刷盘和原子重命名完成。文件包含 route secret 与 Tunnel 私钥，应作为敏感数据备份。
+- **保留与透传**：完整保留标准 HTTP Method、Path、Query、端到端标头及重复响应头。
+- **过滤与剥离**：自动移除 Hop-by-Hop 头（如 `Connection`、`Keep-Alive`、`Transfer-Encoding` 等）。
+- **标头重建**：
+  - Ingress 将请求的 `Host` 头自动重写为目标 Origin 的真实主机名与端口。
+  - 先剥离传入的 `X-Forwarded-For`、`X-Forwarded-Proto` 与 `X-Forwarded-Host`，再按 Egress 记录的调用方地址、协议和 Host 重建。
+- **HTTPS 支持**：目标为 HTTPS 服务时，严格校验证书信任链；不支持跳过证书验证。
 
-配置变更串行执行；创建、修改、删除和凭据轮换采用独立 RPC。需要启动 runtime 的变更在启动成功后持久化；失败保留已保存配置，必要时尝试恢复原 listener。恢复失败会体现在运行状态中。
+### 5.2 认证隔离模式
 
-启动时读取配置并恢复启用的规则；Ingress 控制连接断开后自动重连。禁用、删除或重载会关闭受影响的连接，允许中断活动请求。宿主调用插件 cleanup 后释放 listener、HTTP 请求、WebSocket 和定时器，不要求重启主 daemon。
+| 模式 | Egress 鉴权校验 | 转发至内网服务 | 适用场景 |
+| :--- | :--- | :--- | :--- |
+| **Header** | `X-Paseo-Access-Token` | 剥离 Tunnel Token，**保留**业务自带的 `Authorization` | 内网服务本身需要 Bearer Token 认证。 |
+| **Bearer** | `Authorization: Bearer` | 剥离用于 Tunnel 鉴权的 `Authorization` 头 | 简单客户端或不想添加自定义 Header。 |
+| **None** | 不校验任何 Token | 所有标头按标准 HTTP 规范透明转发 | 仅限内网完全受信任的受限网段。 |
 
-## 页面与验证交互
+> [!NOTE]
+> Egress 默认仅监听 `127.0.0.1` 本地回环接口。当管理员明确配置为监听全网卡（`0.0.0.0`）且暴露至外部网络时，强烈建议开启 Access Token 鉴权，并在前面挂载具备 TLS 证书终结的反向代理（如 Nginx / Caddy）。
 
-侧边栏入口为 **HTTP Tunnel**，页面按 Ingresses、Egresses 排列。用户在 Ingress 页面添加服务并复制 Offer，在 Egress 页面导入 Offer、选择监听范围与认证方式。表单显示来源与建议端口，失败保留输入，管理操作按条目展开。
+---
 
-Egress 的请求面板生成可复制的 curl，支持 GET、POST、路径、查询参数及 JSON 请求体。Header 模式可同时填写内网 API 的 Bearer Token。新生成的 Token 只在当前页面内存中复用，不进入持久化客户端存储。
+## 6. 状态诊断与失败语义
 
-快速验证从 Egress Host 的 loopback 地址访问已运行的 listener，不接受任意远端验证地址。请求最多等待 10 秒，不跟随重定向；响应预览最多保留 8 KiB，SSE 首块后停止，并替换原样回显的输入令牌。验证不覆盖公网 DNS、反向代理或防火墙。
+### 6.1 链路连通性检查
 
-主题与紧凑布局由宿主提供。界面支持 Paseo 的九种语言，通过只读语言偏好适配器跟随宿主设置；SDK 未提供 locale 接口，因此此边界依赖宿主存储约定。服务端诊断信息保留原文。
+HTTP Tunnel 维护两套独立的状态指标：
+1. **进程与监听状态**：监控本地 Listener 与 Relay 控制连接的存活情况。
+2. **主动连通性探测 (Connectivity Dot)**：
+   - 页面打开时定期执行轻量级 `HEAD /` 探测。
+   - Ingress 确认 Relay 在线且 Origin 返回任意有效 HTTP 状态码。
+   - Egress 验证 Listener $\rightarrow$ Relay $\rightarrow$ E2EE $\rightarrow$ Ingress $\rightarrow$ 目标服务的全链路可达。
+   - **语义说明**：任意 HTTP 状态码（包含 401、403、404）均证明链路连通；绿点仅代表链路可达，不代表业务鉴权通过。
 
-## 状态与失败语义
+### 6.2 异常响应状态码映射
 
-运行状态描述 Relay 控制连接和 listener；独立的连通状态通过轻量 `HEAD /` 检查验证 HTTP 可达性。Ingress 要求 Relay 就绪且目标返回 HTTP 响应；Egress 要求 listener 运行，并经 Relay、加密握手和 route 验证收到上游 HTTP 响应。任意业务 HTTP 状态均证明链路连通，不代表业务健康或认证成功。
+| 失败场景 | 响应行为 | 说明 |
+| :--- | :--- | :--- |
+| **Token 缺失或校验失败** | `HTTP 401 Unauthorized` | 鉴权失败，立即阻断。 |
+| **Egress 数据通道容量耗尽** | `HTTP 503 Service Unavailable` | 已达 128 条通道上限且无预建通道可领取时拒绝请求。 |
+| **Relay 断开 / 密钥不匹配 / 目标不可达** | `HTTP 502 Bad Gateway` | 若响应头尚未发出则返回 502；若已开始流式传输则强行断开连接。 |
+| **上游业务服务报错** | 透传原始状态码（如 4xx / 5xx） | 完整保留上游业务响应头和错误正文。 |
+| **本地端口冲突** | 启动配置抛错，界面标红 | 不覆盖现有配置，保留故障前状态。 |
 
-检查不携带业务 Token、不读取响应正文、不跟随重定向。状态查询触发异步检查，同一 Host 缓存约 15 秒、最多 4 个并发、单次 8 秒超时。配置指纹变化、停用、删除和插件退出取消关联检查，旧任务无法覆盖新结果。初次检查、离线和停用显示黄点，已验证连通显示绿点；后台刷新可短暂保留有效结果，超过 30 秒的结果或 Host 查询失败不显示绿点。时间有效性在服务端判定，客户端另以本机收到状态的时间处理失联，避免依赖两台机器时钟一致。
-
-| 情况 | 行为 |
-| --- | --- |
-| Token 缺失或不匹配 | 返回 401。 |
-| Egress 数据连接数达到上限 | 返回 503。 |
-| Relay、加密握手、路由验证或上游连接失败 | 响应头发送前返回 502；发送后终止响应。 |
-| 上游返回 4xx/5xx | 保留上游状态和响应。 |
-| listener 绑定失败 | 配置操作报错，或在启动恢复时显示错误状态。 |
-
-内部失败使用固定错误响应，不将凭据、堆栈或内部连接错误暴露给调用方。上游业务响应按 HTTP 语义转发。
-
-## 模块与验证边界
-
-`index.ts` 负责贡献注册；`src/shared` 定义 RPC 与数据契约；`src/server` 管理持久化、runtime、协议及主动验证；`src/client` 负责配置与请求界面。`*.server.ts` 与 `*.client.tsx` 通过 Paseo 编译边界分离。
-
-验证覆盖真实 HTTP、WebSocket、Relay 与 E2EE 链路，包括认证隔离、流式数据、取消、凭据轮换、生命周期、安装和 UI。安装与发布约定见 [安装说明](installation.md)，操作步骤见 [中文使用文档](README.zh-CN.md)。
-
-不提供 CONNECT、WebSocket Upgrade、HTTP trailers、任意 TCP 转发、HTTP/2/gRPC、共享 listener 路由、负载均衡、自动重试或内建公网 TLS。
+数据面将路由或上游连接失败转换为固定的 502 响应；响应已开始时关闭连接。状态 RPC 不返回密钥或 Token 哈希，快速验证预览会替换原样回显的输入令牌。这些处理不代表所有 RPC 错误或日志都经过通用脱敏。

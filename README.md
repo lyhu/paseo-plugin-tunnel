@@ -24,13 +24,21 @@ The plugin runs in a dedicated Node.js subprocess. Traffic continues while the P
 
 ## Install
 
-On each Ingress and Egress host, use a Paseo installation that supports **Git plugin sources and manifest build commands**. This workflow is verified with the bundled Paseo CLI and daemon 0.7.2. Git, Node.js 22+, and npm must be available to the daemon process, with access to GitHub and the npm registry.
+On each Ingress and Egress host, use a Paseo installation that supports **Git plugin sources and manifest build commands**. This workflow is verified with the bundled Paseo CLI and daemon 0.7.2. Git, Node.js 22+, and npm must be available to the daemon process, with access to GitHub and the npm registry. If installation stops after the trust notice, see [network troubleshooting](docs/installation.md#troubleshooting).
 
 ```bash
-paseo plugin install https://github.com/lyhu/paseo-plugin-tunnel --ref main
+paseo plugin install lyhu/paseo-plugin-tunnel
 paseo plugin ls
 paseo plugin status http-tunnel --json
 ```
+
+The community source `lyhu/paseo-plugin-tunnel` expands to this GitHub repository and follows its default branch, currently `main`. To select a branch explicitly, use the full URL as an alternative:
+
+```bash
+paseo plugin install https://github.com/lyhu/paseo-plugin-tunnel --ref main
+```
+
+Both source forms accept `--ref <branch-or-tag-or-commit>`. The official-plugin shorthand `tunnel` does not identify this community repository.
 
 Confirm `source: "git"` and `ref: "main"` in the status output. A running plugin installed from a local checkout is a directory source, even if that checkout contains `.git`; `paseo plugin update` cannot update directory sources.
 
@@ -44,11 +52,11 @@ Use your local Paseo UI to manage connected hosts, including remote hosts runnin
 
 The **Host picker is in the upper-right corner of the HTTP Tunnel page**. When multiple connected hosts have the plugin installed, open this picker to switch the host currently being managed. The Ingresses, Egresses, forms, status checks, and quick tests shown on the page all belong to the selected host. Switching the Host picker changes the RPC destination; it does not copy rules between hosts. If the picker contains only one host, verify that the other host is connected and has `http-tunnel` installed and running. See [remote host setup](docs/installation.md#remote-hosts).
 
-1. Open **HTTP Tunnel** from Paseo's left sidebar. In the **upper-right Host picker**, select the machine that can reach the private service.
-2. Select **Add ingress**. Enter a name and an origin reachable from the selected host, such as `http://127.0.0.1:3000`. Here `127.0.0.1` means the selected host. An origin contains only a scheme, hostname, and optional port.
-3. Select **Copy Route Offer**. The preview masks the middle of `relayEndpoint`, `tunnelPublicKeyB64`, and `routeSecret`; the Copy button copies the complete JSON for import. Treat it as connection configuration and share it only with the administrator of the intended Egress host.
-4. Use the **upper-right Host picker** to switch to the Egress machine. Select **Add egress**, paste the offer, and configure the listener and authentication. Save the generated Access Token before closing the result.
-5. Expand **curl / Quick test** under the Egress to copy a request example or verify the route from the selected Egress host.
+1. **Step 1 (Select Service Host)**: Open **HTTP Tunnel** from Paseo's left sidebar. In the **upper-right Host picker**, select the machine that can reach the private service.
+2. **Step 2 (Add Ingress)**: Select **Add ingress**. Enter a name and an origin reachable from the selected host, such as `http://127.0.0.1:3000` (where `127.0.0.1` refers to the selected host). An origin contains only a scheme, hostname, and optional port.
+3. **Step 3 (Copy Route Offer)**: Select **Copy Route Offer** to copy the complete JSON configuration (preview is masked). Share this sensitive connection configuration securely with the target Egress host administrator.
+4. **Step 4 (Import to Egress)**: Switch the **upper-right Host picker** to the Egress machine. Select **Add egress**, paste the offer, and configure the listener binding and authentication mode. When using authentication, save the Access Token shown once after creation.
+5. **Step 5 (Verify & Invoke)**: Expand **curl / Quick test** under the Egress to copy the generated command or verify the route directly from the selected Egress host.
 
 Listeners default to `127.0.0.1`, which keeps access on the Egress host. Choose **All network interfaces** only for an approved network where other clients need access, and apply the host firewall and access policy you normally use for that service. For an Internet-facing endpoint, terminate HTTPS at a reverse proxy in front of Egress.
 
@@ -108,40 +116,46 @@ Configuration is stored independently in `$PASEO_HOME/tunnel/config.json`, or `~
 Copy this prompt into an agent running on the intended Paseo host:
 
 ```text
-Install https://github.com/lyhu/paseo-plugin-tunnel on this Paseo host.
-I authorize installing and enabling this trusted Paseo plugin, which runs with
-the daemon user's host permissions.
+Install and enable the trusted plugin `lyhu/paseo-plugin-tunnel` on this Paseo host (authorized to run with daemon permissions).
 
-Check the Paseo CLI and target daemon, Git, Node.js 22+, npm, and GitHub access.
-Confirm that `paseo plugin install --help` supports Git sources and --ref.
-Read the repository README and paseo-plugin.json before installation.
-Inspect existing plugins; preserve existing Tunnel rules and credentials, and
-report an existing installation instead of replacing it automatically.
-For a new installation, run:
-  paseo plugin install https://github.com/lyhu/paseo-plugin-tunnel --ref main
-Pass the GitHub URL directly to Paseo. Do not clone the repository and install
-its local path, register a directory source, or modify Paseo's managed checkout.
-If Git installation or dependency preparation fails, report the redacted error
-and stop; do not silently switch to directory installation or patch the lockfile.
-Enable the plugin system if needed using Paseo's supported settings.
-For the new installation, verify all of the following:
-  paseo plugin ls --json                 reports http-tunnel as running
-  paseo plugin status http-tunnel --json reports source=git, ref=main, the expected
-                                        GitHub repository, and a currentCommit
-  paseo plugin update http-tunnel        succeeds (no update needed is valid)
-Running status alone is not installation success. Inspect
-`paseo plugin logs http-tunnel` on failure without exposing credentials.
-Report the target host, source, ref, installed commit, and update check result.
-Do not restart the main daemon, bind a listener beyond loopback, create tunnel rules,
-print credentials, publish npm packages, or build/upload dist artifacts.
-If host selection, authentication, or access is missing, ask only for that input.
+### Execution Instructions
+1. **Pre-flight Checks**:
+   - Check Paseo CLI, target daemon, Git, Node.js 22+, npm, and GitHub/npm connectivity.
+   - Confirm Git source and --ref support; read README and paseo-plugin.json before installation.
+   - Inspect existing plugins: if already installed, retain existing rules/credentials and report current status without overwriting.
+2. **Installation**:
+   - Enable plugin support through the target host’s Settings → Plugins if needed.
+   - Run: `paseo plugin install lyhu/paseo-plugin-tunnel`
+   - Must install directly via the Git source (owner/repo). Do not clone locally, register directory sources, or patch lockfiles.
+   - If installation or dependency setup fails, report the redacted error and stop; do not fallback to directory installation.
+3. **Verification** (all must pass):
+   - `paseo plugin ls --json`: reports `http-tunnel` as `running`.
+   - `paseo plugin status http-tunnel --json`: verify `source=git`, `ref=main`, expected repository, and `currentCommit`.
+   - `paseo plugin update http-tunnel`: update check succeeds.
+4. **Guardrails & Reporting**:
+   - Inspect `paseo plugin logs http-tunnel` for troubleshooting; never expose credentials.
+   - Do not restart the main daemon, create tunnel rules, bind public ports, or build/publish artifacts.
+   - Ask only if host access or credentials are fundamentally missing. Report host, source, ref, installed commit, and update check result upon completion.
 ```
 
 ## Intended use and technical scope
 
 HTTP Tunnel is designed for development services, internal APIs, dashboards, model endpoints, and other approved operational workflows between trusted Paseo hosts. Deploy it only with hosts, services, networks, and data you own or are authorized to administer.
 
-The Egress listener serves HTTP/1.1. HTTPS is supported for the target service and through an external reverse proxy for Internet-facing clients. CONNECT, WebSocket Upgrade, HTTP trailers, arbitrary TCP forwarding, load balancing, and automatic request retries are not supported. The connectivity dot reports transport reachability; it does not replace an application health endpoint.
+### ✅ Supported Capabilities
+- **HTTP/1.1 Forwarding**: Supports standard HTTP methods, paths, query strings, repeated response headers, streaming upload/download, and Server-Sent Events (SSE).
+- **Target HTTPS**: Upstream target services support HTTPS with strict public/custom CA certificate validation.
+- **Auto Recovery**: Ingress automatically reconnects if the Relay connection drops; reloads restore persisted rules automatically.
+
+### ❌ Unsupported Capabilities
+- **Non-HTTP Traffic**: No arbitrary TCP port forwarding, UDP forwarding, or raw socket proxying.
+- **Protocol Extensions**: No `CONNECT` tunneling, `WebSocket Upgrade`, or HTTP trailers.
+- **Complex Routing**: No multi-target path/host routing on a single listener, load balancing, or automatic request retries.
+
+### 🛡️ Guardrails and Resource Limits
+- **Flow Control**: Bidirectional $8 \times 64\text{ KiB}$ sliding window; advances upon oldest block ACK to avoid transfer pauses.
+- **Resource Quotas**: Up to 128 active data channels per runtime; up to 256 concurrent HTTP sockets per Egress with a 10s header timeout.
+- **Security Boundary**: Egress provides a plaintext HTTP listener, bound to loopback by default. For Internet-facing endpoints, terminate HTTPS at an external reverse proxy (Nginx, Caddy, etc.); end-to-end encryption secures the transport between Egress and Ingress.
 
 For development, clone the repository, run `npm ci`, then use `npm run typecheck`, `npm run lint`, and `npm run build`. Run tests by file with `npm run test:file -- <test-file>`. See [benchmark methodology and results](docs/benchmark.md), [architecture](docs/design.md) and [verification coverage](VERIFICATION.md). Desktop and browser workflows are verified; iOS and Android require device validation.
 

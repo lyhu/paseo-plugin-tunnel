@@ -4,6 +4,14 @@ User-visible changes to Paseo HTTP Tunnel. Versions follow Semantic Versioning; 
 
 ## Unreleased
 
+### Changed
+
+- Recommend the verified community source `paseo plugin install lyhu/paseo-plugin-tunnel`; retain the full URL with `--ref main` and document branch/tag/commit selection.
+- Explain installation stalls after the trust notice and how to check GitHub/npm connectivity and daemon-side proxy configuration.
+- Streamline the Agent installation prompt across English and Chinese documentation into a structured, concise execution checklist.
+- Refactor and standardize project documentation (design, verification, benchmark, and installation guides) for clearer navigation and organization.
+- Correct documentation links, installation status checks, cryptographic and forwarded-header descriptions, and the scope of benchmark and verification claims.
+
 ## 0.2.0 — 2026-09-05
 
 ### Changed
