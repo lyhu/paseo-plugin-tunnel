@@ -10,7 +10,7 @@ Before installation, ensure the target host meets the following requirements:
 
 | Component | Requirement | Verification Command | Notes |
 | :--- | :--- | :--- | :--- |
-| **Paseo CLI & Daemon** | Verified with 0.7.2 | `paseo --version` and `paseo plugin install --help` | Both CLI and daemon must support Git sources and manifest `build` steps. |
+| **Paseo CLI & Daemon** | Required 0.8.0+ | `paseo --version` and `paseo plugin install --help` | Both CLI and daemon must support Git sources, manifest `build` steps, and the v0.8 runtime entries. |
 | **Node.js** | $\ge 22.0.0$ | `node -v` | Required by the plugin runtime and compile phase. |
 | **Git & npm** | Available to the daemon | `git --version && npm -v` | Must be available on the **daemon process's `PATH`**. |
 | **Network Access** | Outbound HTTPS | `curl -I https://github.com` | Access to GitHub and `registry.npmjs.org` is required. |
@@ -46,7 +46,7 @@ Use a tag or commit to pin a revision. An explicit branch such as `main` continu
 
 ```bash
 # Pin to a specific release tag
-paseo plugin install lyhu/paseo-plugin-tunnel --ref v0.2.0
+paseo plugin install lyhu/paseo-plugin-tunnel --ref v0.3.0
 
 # Or using the full repository URL
 paseo plugin install https://github.com/lyhu/paseo-plugin-tunnel --ref main
@@ -66,7 +66,7 @@ paseo plugin status http-tunnel --json
 - `paseo plugin ls --json`: `http-tunnel` has `status: "running"`.
 - `paseo plugin status http-tunnel --json`: the following Git source fields match the intended installation:
 - `source`: `"git"`
-- `ref`: target branch/tag (e.g., `"main"` or `"v0.2.0"`)
+- `ref`: target branch/tag (e.g., `"main"` or `"v0.3.0"`)
 - `currentCommit`: valid 40-character Git SHA
 
 ---
@@ -132,17 +132,27 @@ In `paseo-plugin.json`:
 ```json
 {
   "id": "http-tunnel",
+  "requirements": {
+    "paseo": ">=0.8.0"
+  },
   "build": [
     ["npm", "ci", "--omit=dev", "--ignore-scripts", "--no-audit", "--no-fund"]
   ]
 }
 ```
 
+`requirements.paseo` declares the host range this plugin supports. Paseo 0.8+ refuses to install or load a manifest that omits it, which keeps older-host installs failing loudly with Paseo's own version diagnostic instead of a runtime error.
+
 During Git installation:
 1. Paseo clones the designated commit into an isolated runtime directory.
 2. Paseo executes the manifest's `build` commands to install locked runtime dependencies (`package-lock.json`).
-3. Paseo's built-in bundler compiles `index.ts` (server runtime and client UI contributions) against the Paseo Plugin SDK.
+3. Paseo's built-in bundler compiles `index.server.ts` (daemon runtime) and `index.client.tsx` (client UI contributions) against the Paseo Plugin SDK.
 4. The background daemon launches the isolated Node.js plugin child process.
+
+Two Paseo 0.8 behaviors matter when changing this repository:
+
+- **No modules at the plugin root.** Every module must live under `client/`, `server/`, or `shared/`. Because the bundler resolves imports, a root file pulled into the graph fails the build even if it is not a `.ts` file — importing `package.json` from client code reports `Plugin modules belong in client/, server/, or shared/`. The packaged version is mirrored in `shared/version.ts` for that reason.
+- **`build` runs on Git installs only.** A directory installation (`paseo plugin install "$PWD"`) compiles and activates in place against your working copy and leaves `node_modules` untouched, which is why the installer does not need `npm ci` for local development.
 
 ---
 
@@ -220,7 +230,7 @@ If the host cannot reach GitHub or npm, neither the short source nor `--ref main
 
 | Symptom | Probable Cause | Corrective Action |
 | :--- | :--- | :--- |
-| **Git source rejected** | Outdated CLI/daemon | Use a CLI and daemon that support Git sources and manifest build commands (verified with 0.7.2). |
+| **Git source rejected** | Outdated CLI/daemon | Use Paseo 0.8.0+; the manifest requires `requirements.paseo >= 0.8.0` and the v0.8 runtime entries. |
 | **Git clone hangs / fails** | Network/proxy or missing credentials | Configure daemon-level proxy or verify SSH/HTTPS Git access on the host. |
 | **`npm` not found** | Incomplete `PATH` in daemon service | Ensure Node 22+ and npm are in the system/service manager `PATH`. |
 | **Sidebar icon missing** | Host plugin switch disabled | Go to **Settings → Plugins** in Paseo to enable plugin support. |

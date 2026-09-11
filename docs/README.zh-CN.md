@@ -16,7 +16,7 @@ HTTP 调用方 → Egress → Relay（加密数据）→ Ingress → 内网 HTTP
 
 ## 安装
 
-在每台 Ingress 和 Egress 主机安装插件。要求 Paseo 支持 **Git 来源和插件清单 build 命令**，已验证宿主为桌面发行包内的 Paseo CLI / daemon 0.7.2。daemon 进程需要能够调用 Git、Node.js 22+ 和 npm，并访问 GitHub 与 npm registry。
+在每台 Ingress 和 Egress 主机安装插件。要求宿主为桌面发行包内的 Paseo CLI / daemon **0.8.0 或更高版本**（与清单中的 `requirements.paseo` 一致），并支持 **Git 来源、插件清单 build 命令和 v0.8 运行时入口**（`index.server.ts` / `index.client.tsx`）。daemon 进程需要能够调用 Git、Node.js 22+ 和 npm，并访问 GitHub 与 npm registry。
 
 ```bash
 paseo plugin install lyhu/paseo-plugin-tunnel
@@ -36,7 +36,7 @@ paseo plugin install https://github.com/lyhu/paseo-plugin-tunnel --ref main
 
 如宿主插件系统未开启，在 **Settings → Plugins** 启用。Paseo 将插件作为受信任的 Host 扩展加载：服务端代码和安装命令使用 daemon 用户的权限运行，客户端页面在 Paseo 内运行。请先审阅源码，并只安装到你管理的 Host。私有仓库需要 daemon 所在机器具备 Git 访问凭据。
 
-**不需要预编译、发布 npm 包或上传 Release 附件。** Paseo 克隆源码后，根据 `paseo-plugin.json` 执行运行依赖安装，再编译 `index.ts` 的前后端贡献。`dist` 不是安装入口，用户无需执行 `npm run build`。固定版本与目录安装见 [安装说明](installation.md)。
+**不需要预编译、发布 npm 包或上传 Release 附件。** Paseo 克隆源码后，根据 `paseo-plugin.json` 执行运行依赖安装，再分别编译 `index.server.ts`（服务端）与 `index.client.tsx`（客户端 UI）的贡献。`dist` 不是安装入口，用户无需执行 `npm run build`。固定版本与目录安装见 [安装说明](installation.md)。
 
 跟随 `main` 的 Git 安装使用以下命令检查和更新：
 
@@ -97,7 +97,7 @@ Bearer 模式使用 `Authorization: Bearer YOUR_TOKEN`。插件访问认证头�
 
 界面跟随 Paseo，覆盖简体中文、英语、日语、韩语、西班牙语、法语、巴西葡萄牙语、俄语和阿拉伯语。HTTP 字段名、Ingress / Egress 和 Route Offer 保留协议名称；服务端诊断信息保持原文。
 
-Paseo 0.7.2 的插件 SDK 没有 locale 接口，因此插件只读 `@paseo:app-settings` 的语言偏好：Web / Electron 使用 localStorage，原生端使用宿主已有的 AsyncStorage 模块。页面打开时每秒检查变更，system 模式按 Paseo 支持的语言顺序解析系统偏好。此适配依赖宿主存储约定，SDK 提供语言接口后应替换；原生端尚未真机验证。
+Paseo 0.8 的插件 SDK 仍未提供 locale 接口，因此插件只读 `@paseo:app-settings` 的语言偏好：Web / Electron 使用 localStorage，原生端使用宿主已有的 AsyncStorage 模块。页面打开时每秒检查变更，system 模式按 Paseo 支持的语言顺序解析系统偏好。此适配依赖宿主存储约定，SDK 提供语言接口后应替换；原生端尚未真机验证。
 
 ## Relay 与独立存储
 
@@ -182,14 +182,14 @@ npm run build
 按文件运行测试，每次一个文件：
 
 ```bash
-npm run test:file -- src/client/locale.test.ts
-npm run test:file -- src/server/request.test.ts
-npm run test:file -- src/server/storage.test.ts
-npm run test:file -- src/server/tunnel-wire.test.ts
-npm run test:file -- src/server/relay-url.test.ts
-npm run test:file -- src/server/tunnel.e2e.test.ts
-npm run test:file -- src/server/lifecycle.e2e.test.ts
-npm run test:file -- src/server/https.e2e.test.ts
+npm run test:file -- shared/locale.test.ts
+npm run test:file -- server/request.test.ts
+npm run test:file -- server/storage.test.ts
+npm run test:file -- server/tunnel-wire.test.ts
+npm run test:file -- server/relay-url.test.ts
+npm run test:file -- server/tunnel.e2e.test.ts
+npm run test:file -- server/lifecycle.e2e.test.ts
+npm run test:file -- server/https.e2e.test.ts
 ```
 
 集成测试在本机 workerd 中运行 `@getpaseo/relay` 的真实 Cloudflare 实现，无需公网 Relay。HTTPS 测试使用 OpenSSL 生成临时证书，并通过独立进程的 `NODE_EXTRA_CA_CERTS` 配置测试 CA。

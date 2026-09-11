@@ -125,7 +125,7 @@ npm run benchmark:sse
 
 ```bash
 # 运行传输层与预连接单元测试
-npm run test:file -- src/server/performance.test.ts
+npm run test:file -- server/performance.test.ts
 
 # 运行 SSE 流解析容错测试
 node --test benchmark/sse-parser.test.mjs

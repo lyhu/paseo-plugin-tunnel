@@ -1,6 +1,6 @@
 {
   "name": "paseo-plugin-tunnel",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "private": true,
   "type": "module",
   "license": "AGPL-3.0-only",
@@ -23,14 +23,14 @@
     "benchmark:sse": "node benchmark/anthropic-sse.mjs"
   },
   "dependencies": {
-    "@getpaseo/relay": "0.6.1",
+    "@getpaseo/relay": "0.8.0",
     "ws": "^8.18.0",
     "zod": "^4.4.3"
   },
   "devDependencies": {
     "@biomejs/biome": "^2.4.0",
-    "@getpaseo/client": "0.6.1",
-    "@getpaseo/plugin": "0.6.1",
+    "@getpaseo/client": "0.8.0",
+    "@getpaseo/plugin": "0.8.0",
     "@tanstack/react-query": "^5.90.11",
     "@types/node": "^22.0.0",
     "@types/react": "~19.2.0",

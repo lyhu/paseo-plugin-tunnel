@@ -1,7 +1,7 @@
 import { createRoot } from "react-dom/client";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { PluginRpcProvider } from "@getpaseo/plugin/host";
-import { TunnelView } from "../src/client/tunnel-view.client";
+import { PluginRpcProvider } from "@getpaseo/plugin/client/host";
+import { TunnelView } from "../client/tunnel-view";
 const query = new QueryClient({
   defaultOptions: { queries: { retry: false } },
 });
@@ -10,10 +10,15 @@ const dark = params.get("theme") !== "light";
 const theme = {
   colors: {
     surface0: dark ? "#15171a" : "#ffffff",
+    surface1: dark ? "#1b1e22" : "#f6f7f9",
+    surface2: dark ? "#22262b" : "#eceef2",
+    border: dark ? "#333940" : "#d7dbe1",
     foreground: dark ? "#f0f2f5" : "#202226",
     foregroundMuted: dark ? "#a2aab7" : "#5e6470",
     accent: "#477ce8",
     accentForeground: "#ffffff",
+    statusSuccess: dark ? "#7ddc9a" : "#147a3a",
+    statusWarning: dark ? "#f0c674" : "#8a5a00",
     statusDanger: dark ? "#ff8c8c" : "#b51b30",
   },
 };

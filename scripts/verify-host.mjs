@@ -4,8 +4,8 @@ import { mkdtemp, rm, mkdir } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
-import { createInProcessRelay } from "../src/server/relay-test-support.ts";
-import { FileTunnelStorage } from "../src/server/storage.server.ts";
+import { createInProcessRelay } from "../server/relay-test-support.ts";
+import { FileTunnelStorage } from "../server/storage.ts";
 import { createServer } from "node:http";
 import { once } from "node:events";
 import { build } from "esbuild";
@@ -45,7 +45,7 @@ try {
   });
   client = new DaemonClient({
     url: `ws://127.0.0.1:${daemon.port}/ws`,
-    appVersion: "0.7.2",
+    appVersion: "0.8.0",
   });
   await client.connect();
   const plugin = await client.installDirectoryPlugin(path.resolve("."));

@@ -24,7 +24,7 @@ The plugin runs in a dedicated Node.js subprocess. Traffic continues while the P
 
 ## Install
 
-On each Ingress and Egress host, use a Paseo installation that supports **Git plugin sources and manifest build commands**. This workflow is verified with the bundled Paseo CLI and daemon 0.7.2. Git, Node.js 22+, and npm must be available to the daemon process, with access to GitHub and the npm registry. If installation stops after the trust notice, see [network troubleshooting](docs/installation.md#troubleshooting).
+On each Ingress and Egress host, use the bundled Paseo CLI and daemon **0.8.0 or newer**, matching the manifest's `requirements.paseo`. The host must support **Git plugin sources, manifest build commands, and the v0.8 runtime entries** (`index.server.ts` / `index.client.tsx`). Git, Node.js 22+, and npm must be available to the daemon process, with access to GitHub and the npm registry. If installation stops after the trust notice, see [network troubleshooting](docs/installation.md#troubleshooting).
 
 ```bash
 paseo plugin install lyhu/paseo-plugin-tunnel
@@ -44,7 +44,7 @@ Confirm `source: "git"` and `ref: "main"` in the status output. A running plugin
 
 Enable plugins in **Settings → Plugins** if needed. Paseo loads plugins as trusted host extensions: backend code and installation commands run with the daemon user's permissions, and the UI runs inside Paseo. Review the source and install it only on hosts you administer. Private repositories require Git credentials on the daemon host.
 
-**No precompiled release or npm publication is required.** Paseo clones the source, runs the manifest's dependency installation command, then compiles the server and client from `index.ts`. You do not need to run `npm run build`, upload `dist`, or download a release asset. See [installation details](docs/installation.md) for pinned revisions and local development.
+**No precompiled release or npm publication is required.** Paseo clones the source, runs the manifest's dependency installation command, then compiles the server from `index.server.ts` and the client UI from `index.client.tsx`. You do not need to run `npm run build`, upload `dist`, or download a release asset. See [installation details](docs/installation.md) for pinned revisions and local development.
 
 ## Use HTTP Tunnel
 

@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
-import { TunnelSubsystem } from "../src/server/subsystem.server.ts";
-import { FileTunnelStorage } from "../src/server/storage.server.ts";
+import { TunnelSubsystem } from "../server/subsystem.ts";
+import { FileTunnelStorage } from "../server/storage.ts";
 const [relayEndpoint, targetOrigin, configPath] = process.argv.slice(2);
 const tunnel = new TunnelSubsystem({
   storage: new FileTunnelStorage(configPath),
