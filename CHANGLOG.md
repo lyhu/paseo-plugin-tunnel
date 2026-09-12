@@ -2,6 +2,16 @@
 
 User-visible changes to Paseo HTTP Tunnel. Versions follow Semantic Versioning; the current source version is defined in `package.json`.
 
+## 0.3.1 — 2026-09-12
+
+### Fixed
+
+- Regenerate `package-lock.json` with npm 10 so the platform-specific optional esbuild binaries are recorded again. npm 10 hosts rejected the manifest `npm ci` with "can only install packages when your package.json and package-lock.json are in sync", which blocked Git installs and updates on those hosts.
+
+### Changed
+
+- Document that the Host Picker only appears while at least two connected hosts load this plugin's client contributions, so every managed host must run HTTP Tunnel 0.3.1 or later after a Paseo 0.8 upgrade.
+
 ## 0.3.0 — 2026-09-11
 
 ### Added

@@ -46,7 +46,7 @@ Use a tag or commit to pin a revision. An explicit branch such as `main` continu
 
 ```bash
 # Pin to a specific release tag
-paseo plugin install lyhu/paseo-plugin-tunnel --ref v0.3.0
+paseo plugin install lyhu/paseo-plugin-tunnel --ref v0.3.1
 
 # Or using the full repository URL
 paseo plugin install https://github.com/lyhu/paseo-plugin-tunnel --ref main
@@ -66,7 +66,7 @@ paseo plugin status http-tunnel --json
 - `paseo plugin ls --json`: `http-tunnel` has `status: "running"`.
 - `paseo plugin status http-tunnel --json`: the following Git source fields match the intended installation:
 - `source`: `"git"`
-- `ref`: target branch/tag (e.g., `"main"` or `"v0.3.0"`)
+- `ref`: target branch/tag (e.g., `"main"` or `"v0.3.1"`)
 - `currentCommit`: valid 40-character Git SHA
 
 ---
@@ -102,6 +102,9 @@ HTTP Tunnel operates across distributed hosts: an **Ingress Host** (exposing loc
 3. **Cross-Host Binding via Route Offer**:
    - On the Ingress host: Add an Ingress rule pointing to the service Origin (e.g., `http://127.0.0.1:3000`), then click **Copy Route Offer**.
    - On the Egress host: Switch the Host Picker, click **Add Egress**, and paste the Route Offer.
+
+> [!IMPORTANT]
+> The Host Picker is rendered only while at least two connected hosts have this plugin's client contributions loaded. After upgrading any host to Paseo 0.8, install HTTP Tunnel **0.3.1 or later on every host you manage**. A host still running the pre-0.8 plugin is rejected by Paseo 0.8 for a missing `requirements.paseo`, contributes nothing to the client, and silently drops out of the picker — the picker then collapses to a single host and disappears from the header. Run `paseo plugin ls` on each host to confirm `running`.
 
 ---
 

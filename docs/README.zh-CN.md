@@ -52,7 +52,7 @@ paseo plugin logs http-tunnel
 
 在本地 Paseo UI 中即可管理已连接的远程 Host，远程只需运行 daemon。先在各 Host 安装并启用 `http-tunnel`。
 
-**Host 切换器位于 HTTP Tunnel 页面右上角。** 多个已连接 Host 安装并运行插件后，可在这里切换当前管理的 Host。页面中的 Ingresses、Egresses、表单、状态检查和快速验证都属于右上角当前选中的 Host。切换 Host 只会改变 RPC 的目标，不会在 Host 之间复制规则。若切换器中只有一台 Host，请检查其他 Host 是否已连接，以及 `http-tunnel` 是否已经安装并处于 running 状态。详见[远程 Host 安装](installation.md#remote-hosts)。
+**Host 切换器位于 HTTP Tunnel 页面右上角。** 多个已连接 Host 安装并运行插件后，可在这里切换当前管理的 Host。页面中的 Ingresses、Egresses、表单、状态检查和快速验证都属于右上角当前选中的 Host。切换 Host 只会改变 RPC 的目标，不会在 Host 之间复制规则。若切换器中只有一台 Host，请检查其他 Host 是否已连接，以及 `http-tunnel` 是否已经安装并处于 running 状态。升级到 Paseo 0.8 后，所有被管理的 Host 都必须运行 HTTP Tunnel **0.3.1 或更高版本** —— 仍使用 0.8 之前版本的 Host 会被 Paseo 0.8 拒绝，因而不出现在切换器中。详见[远程 Host 安装](installation.md#remote-hosts)。
 
 1. **步骤 1（定位服务 Host）**：从 Paseo 左侧导航栏打开 **HTTP Tunnel**，在右上角 **Host 切换器**中选择可直连内网服务的机器。
 2. **步骤 2（创建 Ingress）**：点击 **Add Ingress**，输入规则名称及目标服务 Origin（例如 `http://127.0.0.1:3000`，此处 `127.0.0.1` 指当前选中的 Host）。Origin 仅包含协议、主机与端口。
