@@ -240,3 +240,42 @@ If the host cannot reach GitHub or npm, neither the short source nor `--ref main
 | **HTTP 401 Unauthorized** | Token mismatch or incorrect mode | Verify whether Egress expects `X-Paseo-Access-Token` or Bearer token. |
 | **HTTP 502 Bad Gateway** | Relay unreachable or Ingress offline | Check Ingress connectivity, Relay network reachability, and Origin service health. |
 | **Port bind error** | Port conflict | Choose an unused port or terminate competing processes. |
+
+### Daemon host cannot reach GitHub
+
+Paseo runs the Git clone on the **daemon host**, so a Git source cannot be installed where `github.com:443` is blocked even if the npm registry is reachable. Confirm the split first:
+
+```bash
+curl -sI --max-time 10 https://github.com | head -1              # blocked?
+curl -sI --max-time 10 https://registry.npmjs.org | head -1      # reachable?
+```
+
+Two options:
+
+1. **Rewrite only this repository's URL at the Git layer** (preferred). The plugin source stays canonical, so `paseo plugin update` keeps working:
+
+   ```bash
+   git config --global url."https://ghfast.top/https://github.com/lyhu/paseo-plugin-tunnel".insteadOf \
+     "https://github.com/lyhu/paseo-plugin-tunnel"
+   git ls-remote https://github.com/lyhu/paseo-plugin-tunnel.git HEAD   # verify
+   ```
+
+   `ghfast.top`, `ghproxy.net`, and `gh-proxy.com` are interchangeable accelerators. Keep the rewrite scoped to this one repository — a broader `github.com/` prefix would route unrelated repositories through the same third party. Undo it once the host reaches GitHub directly:
+
+   ```bash
+   git config --global --unset url."https://ghfast.top/https://github.com/lyhu/paseo-plugin-tunnel".insteadOf
+   ```
+
+2. **Offline directory install.** Copy this repository to the host, install the locked runtime dependencies there, then install the directory. The install source becomes a directory, so `paseo plugin update` no longer applies to it:
+
+   ```bash
+   npm ci --omit=dev --ignore-scripts --no-audit --no-fund
+   paseo plugin install "$PWD"
+   ```
+
+   If you later restore Git access, remove the directory source and reinstall from the community source:
+
+   ```bash
+   paseo plugin remove http-tunnel
+   paseo plugin install lyhu/paseo-plugin-tunnel
+   ```

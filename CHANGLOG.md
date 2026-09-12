@@ -2,6 +2,12 @@
 
 User-visible changes to Paseo HTTP Tunnel. Versions follow Semantic Versioning; the current source version is defined in `package.json`.
 
+## Unreleased
+
+### Changed
+
+- Document installing on daemon hosts that can reach the npm registry but not `github.com`: a repository-scoped Git mirror rewrite, or an offline directory install.
+
 ## 0.3.1 — 2026-09-12
 
 ### Fixed
