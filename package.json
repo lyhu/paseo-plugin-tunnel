@@ -1,10 +1,37 @@
 {
   "name": "paseo-plugin-tunnel",
-  "version": "0.3.1",
-  "private": true,
+  "version": "0.3.2",
   "type": "module",
   "license": "AGPL-3.0-only",
   "description": "Controlled, end-to-end encrypted HTTP service connections for trusted Paseo hosts",
+  "author": "lyhu (https://github.com/lyhu)",
+  "homepage": "https://github.com/lyhu/paseo-plugin-tunnel#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/lyhu/paseo-plugin-tunnel.git"
+  },
+  "bugs": {
+    "url": "https://github.com/lyhu/paseo-plugin-tunnel/issues"
+  },
+  "keywords": [
+    "paseo",
+    "paseo-plugin",
+    "http-tunnel",
+    "http-proxy",
+    "e2e-encryption",
+    "sse",
+    "paseo.sh"
+  ],
+  "files": [
+    "paseo-plugin.json",
+    "npm-shrinkwrap.json",
+    "tsconfig.json",
+    "index.client.tsx",
+    "index.server.ts",
+    "client/",
+    "server/",
+    "shared/"
+  ],
   "engines": {
     "node": ">=22"
   },
@@ -15,6 +42,8 @@
     "format:files": "biome format --write",
     "format:check": "biome format .",
     "build": "node scripts/build.mjs",
+    "test": "vitest run --bail=1 --maxWorkers=1 --exclude \"benchmark/**\"",
+    "test:benchmark": "node --test benchmark/*.test.mjs",
     "test:file": "vitest run --bail=1 --maxWorkers=1",
     "verify:host": "tsx scripts/verify-host.mjs",
     "verify:local": "tsx scripts/verify-local.mjs",

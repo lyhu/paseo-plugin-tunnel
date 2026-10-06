@@ -26,10 +26,18 @@ The plugin runs in a dedicated Node.js subprocess. Traffic continues while the P
 
 On each Ingress and Egress host, use the bundled Paseo CLI and daemon **0.8.0 or newer**, matching the manifest's `requirements.paseo`. The host must support **Git plugin sources, manifest build commands, and the v0.8 runtime entries** (`index.server.ts` / `index.client.tsx`). Git, Node.js 22+, and npm must be available to the daemon process, with access to GitHub and the npm registry. If installation stops after the trust notice, see [network troubleshooting](docs/installation.md#troubleshooting).
 
+Paseo 0.9 and newer install from npm:
+
 ```bash
-paseo plugin install lyhu/paseo-plugin-tunnel
+paseo plugin install npm:paseo-plugin-tunnel
 paseo plugin ls
 paseo plugin status http-tunnel --json
+```
+
+Paseo 0.8 installs from GitHub:
+
+```bash
+paseo plugin install lyhu/paseo-plugin-tunnel
 ```
 
 The community source `lyhu/paseo-plugin-tunnel` expands to this GitHub repository and follows its default branch, currently `main`. To select a branch explicitly, use the full URL as an alternative:
@@ -38,13 +46,13 @@ The community source `lyhu/paseo-plugin-tunnel` expands to this GitHub repositor
 paseo plugin install https://github.com/lyhu/paseo-plugin-tunnel --ref main
 ```
 
-Both source forms accept `--ref <branch-or-tag-or-commit>`. The official-plugin shorthand `tunnel` does not identify this community repository.
+Both Git source forms accept `--ref <branch-or-tag-or-commit>`; npm sources do not, because the published package version already pins the revision. The official-plugin shorthand `tunnel` does not identify this community repository.
 
-Confirm `source: "git"` and `ref: "main"` in the status output. A running plugin installed from a local checkout is a directory source, even if that checkout contains `.git`; `paseo plugin update` cannot update directory sources.
+Confirm `source` in the status output: `"npm"` for npm installs, `"git"` with `ref: "main"` for Git installs. A running plugin installed from a local checkout is a directory source, even if that checkout contains `.git`; `paseo plugin update` cannot update directory sources.
 
 Enable plugins in **Settings → Plugins** if needed. Paseo loads plugins as trusted host extensions: backend code and installation commands run with the daemon user's permissions, and the UI runs inside Paseo. Review the source and install it only on hosts you administer. Private repositories require Git credentials on the daemon host.
 
-**No precompiled release or npm publication is required.** Paseo clones the source, runs the manifest's dependency installation command, then compiles the server from `index.server.ts` and the client UI from `index.client.tsx`. You do not need to run `npm run build`, upload `dist`, or download a release asset. See [installation details](docs/installation.md) for pinned revisions and local development.
+**No precompiled release asset is required.** Paseo installs the source, runs the manifest's dependency installation command, then compiles the server from `index.server.ts` and the client UI from `index.client.tsx`. You do not need to run `npm run build`, upload `dist`, or download a release asset. Runtime dependencies are pinned by the committed `npm-shrinkwrap.json`, which npm also ships inside the published package so that installs stay reproducible. See [installation details](docs/installation.md) for pinned revisions and local development.
 
 ## Use HTTP Tunnel
 

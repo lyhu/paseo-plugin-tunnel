@@ -4,9 +4,22 @@ User-visible changes to Paseo HTTP Tunnel. Versions follow Semantic Versioning; 
 
 ## Unreleased
 
+## 0.3.2 — 2026-10-06
+
+### Added
+
+- Publish the plugin to npm as `paseo-plugin-tunnel`, so Paseo 0.9 and newer install it with `paseo plugin install npm:paseo-plugin-tunnel`. Paseo 0.8 continues to install from GitHub.
+- Declare `files`, `author`, `repository`, `bugs`, `homepage`, and `keywords` in `package.json` so the published package carries the metadata the Paseo registry listing reads.
+- Add an `npm test` script that runs the vitest suites, plus a `test:benchmark` script for the `node:test` benchmark parser test, so the two test frameworks no longer collide when vitest collects `benchmark/`.
+
+### Fixed
+
+- Track the lockfile as `npm-shrinkwrap.json` instead of `package-lock.json`. npm never includes `package-lock.json` in a published tarball, so the manifest's `npm ci` build command failed on every npm install; npm does ship `npm-shrinkwrap.json`, so Git and npm installs now resolve the same pinned versions.
+
 ### Changed
 
 - Document installing on daemon hosts that can reach the npm registry but not `github.com`: a repository-scoped Git mirror rewrite, or an offline directory install.
+- Document that the manifest `build` runs on Git and npm installs but not on directory installs.
 
 ## 0.3.1 — 2026-09-12
 

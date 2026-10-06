@@ -18,10 +18,18 @@ HTTP 调用方 → Egress → Relay（加密数据）→ Ingress → 内网 HTTP
 
 在每台 Ingress 和 Egress 主机安装插件。要求宿主为桌面发行包内的 Paseo CLI / daemon **0.8.0 或更高版本**（与清单中的 `requirements.paseo` 一致），并支持 **Git 来源、插件清单 build 命令和 v0.8 运行时入口**（`index.server.ts` / `index.client.tsx`）。daemon 进程需要能够调用 Git、Node.js 22+ 和 npm，并访问 GitHub 与 npm registry。
 
+Paseo 0.9 及更高版本从 npm 安装：
+
 ```bash
-paseo plugin install lyhu/paseo-plugin-tunnel
+paseo plugin install npm:paseo-plugin-tunnel
 paseo plugin ls
 paseo plugin status http-tunnel --json
+```
+
+Paseo 0.8 从 GitHub 安装：
+
+```bash
+paseo plugin install lyhu/paseo-plugin-tunnel
 ```
 
 社区插件短路径 `lyhu/paseo-plugin-tunnel` 会解析到此 GitHub 仓库，省略 `--ref` 时跟随默认分支（当前为 `main`）。也可以保留完整 URL，并显式指定分支：
@@ -30,13 +38,13 @@ paseo plugin status http-tunnel --json
 paseo plugin install https://github.com/lyhu/paseo-plugin-tunnel --ref main
 ```
 
-两种来源写法都支持 `--ref <branch-or-tag-or-commit>`，可选择特定分支、标签或提交。官方插件短名称 `tunnel` 并不指向本社区仓库。
+两种 Git 来源写法都支持 `--ref <branch-or-tag-or-commit>`，可选择特定分支、标签或提交；npm 来源不支持 `--ref`，因为已发布的包版本本身已固定版本。官方插件短名称 `tunnel` 并不指向本社区仓库。
 
-确认状态输出为 `source: "git"`、`ref: "main"`。从本地 checkout 路径安装的插件属于目录来源，即使目录包含 `.git` 且插件正常运行，也不能使用 `paseo plugin update` 更新。
+确认状态输出中的 `source`：npm 安装为 `"npm"`，Git 安装为 `"git"` 且 `ref: "main"`。从本地 checkout 路径安装的插件属于目录来源，即使目录包含 `.git` 且插件正常运行，也不能使用 `paseo plugin update` 更新。
 
 如宿主插件系统未开启，在 **Settings → Plugins** 启用。Paseo 将插件作为受信任的 Host 扩展加载：服务端代码和安装命令使用 daemon 用户的权限运行，客户端页面在 Paseo 内运行。请先审阅源码，并只安装到你管理的 Host。私有仓库需要 daemon 所在机器具备 Git 访问凭据。
 
-**不需要预编译、发布 npm 包或上传 Release 附件。** Paseo 克隆源码后，根据 `paseo-plugin.json` 执行运行依赖安装，再分别编译 `index.server.ts`（服务端）与 `index.client.tsx`（客户端 UI）的贡献。`dist` 不是安装入口，用户无需执行 `npm run build`。固定版本与目录安装见 [安装说明](installation.md)。
+**不需要预编译或上传 Release 附件。** Paseo 安装源码后，根据 `paseo-plugin.json` 执行运行依赖安装，再分别编译 `index.server.ts`（服务端）与 `index.client.tsx`（客户端 UI）的贡献。`dist` 不是安装入口，用户无需执行 `npm run build`。运行依赖由仓库中的 `npm-shrinkwrap.json` 固定，npm 也会将该文件包含进已发布的包，从而使安装保持可复现。固定版本与目录安装见 [安装说明](installation.md)。
 
 跟随 `main` 的 Git 安装使用以下命令检查和更新：
 

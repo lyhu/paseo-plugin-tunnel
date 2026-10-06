@@ -46,7 +46,7 @@ Use a tag or commit to pin a revision. An explicit branch such as `main` continu
 
 ```bash
 # Pin to a specific release tag
-paseo plugin install lyhu/paseo-plugin-tunnel --ref v0.3.1
+paseo plugin install lyhu/paseo-plugin-tunnel --ref v0.3.2
 
 # Or using the full repository URL
 paseo plugin install https://github.com/lyhu/paseo-plugin-tunnel --ref main
@@ -66,7 +66,7 @@ paseo plugin status http-tunnel --json
 - `paseo plugin ls --json`: `http-tunnel` has `status: "running"`.
 - `paseo plugin status http-tunnel --json`: the following Git source fields match the intended installation:
 - `source`: `"git"`
-- `ref`: target branch/tag (e.g., `"main"` or `"v0.3.1"`)
+- `ref`: target branch/tag (e.g., `"main"` or `"v0.3.2"`)
 - `currentCommit`: valid 40-character Git SHA
 
 ---
@@ -129,7 +129,7 @@ Removing the old registration leaves `$PASEO_HOME/tunnel/config.json` intact. Th
 
 ## 6. How Compilation & Dependencies Work
 
-The Git repository itself is the deployable artifact. You do not need a precompiled release, a published npm package for this plugin, or a `dist/` bundle. Installation still downloads the runtime dependencies from npm.
+The source repository is the deployable artifact. You do not need a precompiled release or a `dist/` bundle. Installation still downloads the runtime dependencies from npm.
 
 In `paseo-plugin.json`:
 ```json
@@ -148,14 +148,19 @@ In `paseo-plugin.json`:
 
 During Git installation:
 1. Paseo clones the designated commit into an isolated runtime directory.
-2. Paseo executes the manifest's `build` commands to install locked runtime dependencies (`package-lock.json`).
+2. Paseo executes the manifest's `build` commands to install locked runtime dependencies (`npm-shrinkwrap.json`).
 3. Paseo's built-in bundler compiles `index.server.ts` (daemon runtime) and `index.client.tsx` (client UI contributions) against the Paseo Plugin SDK.
 4. The background daemon launches the isolated Node.js plugin child process.
 
-Two Paseo 0.8 behaviors matter when changing this repository:
+During npm installation (Paseo 0.9+):
+1. Paseo resolves the published `paseo-plugin-tunnel` package into an isolated runtime directory and installs its production dependencies.
+2. Paseo's built-in bundler and the manifest `build` command run as they do for a Git install.
+
+Three behaviors matter when changing this repository:
 
 - **No modules at the plugin root.** Every module must live under `client/`, `server/`, or `shared/`. Because the bundler resolves imports, a root file pulled into the graph fails the build even if it is not a `.ts` file — importing `package.json` from client code reports `Plugin modules belong in client/, server/, or shared/`. The packaged version is mirrored in `shared/version.ts` for that reason.
-- **`build` runs on Git installs only.** A directory installation (`paseo plugin install "$PWD"`) compiles and activates in place against your working copy and leaves `node_modules` untouched, which is why the installer does not need `npm ci` for local development.
+- **The lockfile is `npm-shrinkwrap.json`, not `package-lock.json`.** npm hard-excludes `package-lock.json` from published tarballs but ships `npm-shrinkwrap.json`. Because the manifest `build` runs `npm ci` — which requires a lockfile — the repository tracks the shrinkwrap name so that Git and npm installs both resolve identical pinned versions. Keep the same versions in both files when changing dependencies.
+- **`build` runs on Git and npm installs, not on directory installs.** A directory installation (`paseo plugin install "$PWD"`) compiles and activates in place against your working copy and leaves `node_modules` untouched, which is why the installer does not need `npm ci` for local development.
 
 ---
 
