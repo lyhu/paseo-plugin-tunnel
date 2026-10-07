@@ -24,7 +24,7 @@ The plugin runs in a dedicated Node.js subprocess. Traffic continues while the P
 
 ## Install
 
-On each Ingress and Egress host, use the bundled Paseo CLI and daemon **0.8.0 or newer**, matching the manifest's `requirements.paseo`. The host must support **Git plugin sources, manifest build commands, and the v0.8 runtime entries** (`index.server.ts` / `index.client.tsx`). Git, Node.js 22+, and npm must be available to the daemon process, with access to GitHub and the npm registry. If installation stops after the trust notice, see [network troubleshooting](docs/installation.md#troubleshooting).
+On each Ingress and Egress host, use the bundled Paseo CLI and daemon **0.10.3 or newer**, matching the manifest's `requirements.paseo`. The host must support **Git plugin sources, manifest build commands, and the v0.8 runtime entries** (`index.server.ts` / `index.client.tsx`). Git, Node.js 22+, and npm must be available to the daemon process, with access to GitHub and the npm registry. If installation stops after the trust notice, see [network troubleshooting](docs/installation.md#troubleshooting).
 
 Paseo 0.9 and newer install from npm:
 
@@ -34,7 +34,7 @@ paseo plugin ls
 paseo plugin status http-tunnel --json
 ```
 
-Paseo 0.8 installs from GitHub:
+Paseo 0.10.3 installs from GitHub:
 
 ```bash
 paseo plugin install lyhu/paseo-plugin-tunnel
@@ -58,7 +58,7 @@ Enable plugins in **Settings → Plugins** if needed. Paseo loads plugins as tru
 
 Use your local Paseo UI to manage connected hosts, including remote hosts running only the daemon. Install and enable `http-tunnel` on each host first.
 
-The **Host picker is in the upper-right corner of the HTTP Tunnel page**. When multiple connected hosts have the plugin installed, open this picker to switch the host currently being managed. The Ingresses, Egresses, forms, status checks, and quick tests shown on the page all belong to the selected host. Switching the Host picker changes the RPC destination; it does not copy rules between hosts. If the picker contains only one host, verify that the other host is connected and has `http-tunnel` installed and running. After upgrading to Paseo 0.8, every managed host must run HTTP Tunnel **0.3.1 or later** — a host still on the pre-0.8 plugin is rejected by Paseo 0.8 and drops out of the picker. See [remote host setup](docs/installation.md#remote-hosts).
+The **Host picker is in the upper-right corner of the HTTP Tunnel page**. When multiple connected hosts have the plugin installed, open this picker to switch the host currently being managed. The Ingresses, Egresses, forms, status checks, and quick tests shown on the page all belong to the selected host. Switching the Host picker changes the RPC destination; it does not copy rules between hosts. If the picker contains only one host, verify that the other host is connected and has `http-tunnel` installed and running. After upgrading to Paseo 0.10.3, every managed host must run a matching HTTP Tunnel release **0.3.3 or later** — a host still on an older plugin is rejected by the host version requirement and drops out of the picker. See [remote host setup](docs/installation.md#remote-hosts).
 
 1. **Step 1 (Select Service Host)**: Open **HTTP Tunnel** from Paseo's left sidebar. In the **upper-right Host picker**, select the machine that can reach the private service.
 2. **Step 2 (Add Ingress)**: Select **Add ingress**. Enter a name and an origin reachable from the selected host, such as `http://127.0.0.1:3000` (where `127.0.0.1` refers to the selected host). An origin contains only a scheme, hostname, and optional port.

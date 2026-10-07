@@ -10,7 +10,7 @@ Before installation, ensure the target host meets the following requirements:
 
 | Component | Requirement | Verification Command | Notes |
 | :--- | :--- | :--- | :--- |
-| **Paseo CLI & Daemon** | Required 0.8.0+ | `paseo --version` and `paseo plugin install --help` | Both CLI and daemon must support Git sources, manifest `build` steps, and the v0.8 runtime entries. |
+| **Paseo CLI & Daemon** | Required 0.10.3+ | `paseo --version` and `paseo plugin install --help` | Both CLI and daemon must support Git sources, manifest `build` steps, and the v0.8 runtime entries. |
 | **Node.js** | $\ge 22.0.0$ | `node -v` | Required by the plugin runtime and compile phase. |
 | **Git & npm** | Available to the daemon | `git --version && npm -v` | Must be available on the **daemon process's `PATH`**. |
 | **Network Access** | Outbound HTTPS | `curl -I https://github.com` | Access to GitHub and `registry.npmjs.org` is required. |
@@ -104,7 +104,7 @@ HTTP Tunnel operates across distributed hosts: an **Ingress Host** (exposing loc
    - On the Egress host: Switch the Host Picker, click **Add Egress**, and paste the Route Offer.
 
 > [!IMPORTANT]
-> The Host Picker is rendered only while at least two connected hosts have this plugin's client contributions loaded. After upgrading any host to Paseo 0.8, install HTTP Tunnel **0.3.1 or later on every host you manage**. A host still running the pre-0.8 plugin is rejected by Paseo 0.8 for a missing `requirements.paseo`, contributes nothing to the client, and silently drops out of the picker — the picker then collapses to a single host and disappears from the header. Run `paseo plugin ls` on each host to confirm `running`.
+> The Host Picker is rendered only while at least two connected hosts have this plugin's client contributions loaded. After upgrading any host to Paseo 0.10.3, install a matching HTTP Tunnel release **0.3.3 or later on every host you manage**. A host still running an older plugin is rejected by the host's version requirement, contributes nothing to the client, and silently drops out of the picker — the picker then collapses to a single host and disappears from the header. Run `paseo plugin ls` on each host to confirm `running`.
 
 ---
 
@@ -136,7 +136,7 @@ In `paseo-plugin.json`:
 {
   "id": "http-tunnel",
   "requirements": {
-    "paseo": ">=0.8.0"
+    "paseo": ">=0.10.3"
   },
   "build": [
     ["npm", "ci", "--omit=dev", "--ignore-scripts", "--no-audit", "--no-fund"]
@@ -238,7 +238,7 @@ If the host cannot reach GitHub or npm, neither the short source nor `--ref main
 
 | Symptom | Probable Cause | Corrective Action |
 | :--- | :--- | :--- |
-| **Git source rejected** | Outdated CLI/daemon | Use Paseo 0.8.0+; the manifest requires `requirements.paseo >= 0.8.0` and the v0.8 runtime entries. |
+| **Git source rejected** | Outdated CLI/daemon | Use Paseo 0.10.3+; the manifest requires `requirements.paseo >= 0.10.3` and the v0.8 runtime entries. |
 | **Git clone hangs / fails** | Network/proxy or missing credentials | Configure daemon-level proxy or verify SSH/HTTPS Git access on the host. |
 | **`npm` not found** | Incomplete `PATH` in daemon service | Ensure Node 22+ and npm are in the system/service manager `PATH`. |
 | **Sidebar icon missing** | Host plugin switch disabled | Go to **Settings → Plugins** in Paseo to enable plugin support. |

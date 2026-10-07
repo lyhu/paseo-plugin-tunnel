@@ -4,6 +4,19 @@ User-visible changes to Paseo HTTP Tunnel. Versions follow Semantic Versioning; 
 
 ## Unreleased
 
+### Changed
+
+- Upgrade the Paseo plugin SDK and `@getpaseo/relay` to `0.10.3`, and raise `requirements.paseo` to `>=0.10.3`. Hosts on Paseo 0.8–0.10.2 are now rejected by the manifest's version requirement and must upgrade before installing or updating the plugin.
+- Document the raised host floor and the matching HTTP Tunnel 0.3.3 release across `README.md`, `docs/README.zh-CN.md`, and `docs/installation.md`.
+
+### Fixed
+
+- Pass the new `{ target: { kind: "endpoint", host } }` argument shape to `connectToDaemon` in `scripts/verify-local.mjs`, matching the Paseo 0.10.3 client API.
+
+### Added
+
+- Add `index.client.test.ts`, covering the client contribution contract (contribution id shape, sidebar item, and surface registration) that Paseo validates at load time.
+
 ## 0.3.2 — 2026-10-06
 
 ### Added

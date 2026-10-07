@@ -16,7 +16,7 @@ HTTP 调用方 → Egress → Relay（加密数据）→ Ingress → 内网 HTTP
 
 ## 安装
 
-在每台 Ingress 和 Egress 主机安装插件。要求宿主为桌面发行包内的 Paseo CLI / daemon **0.8.0 或更高版本**（与清单中的 `requirements.paseo` 一致），并支持 **Git 来源、插件清单 build 命令和 v0.8 运行时入口**（`index.server.ts` / `index.client.tsx`）。daemon 进程需要能够调用 Git、Node.js 22+ 和 npm，并访问 GitHub 与 npm registry。
+在每台 Ingress 和 Egress 主机安装插件。要求宿主为桌面发行包内的 Paseo CLI / daemon **0.10.3 或更高版本**（与清单中的 `requirements.paseo` 一致），并支持 **Git 来源、插件清单 build 命令和 v0.8 运行时入口**（`index.server.ts` / `index.client.tsx`）。daemon 进程需要能够调用 Git、Node.js 22+ 和 npm，并访问 GitHub 与 npm registry。
 
 Paseo 0.9 及更高版本从 npm 安装：
 
@@ -26,7 +26,7 @@ paseo plugin ls
 paseo plugin status http-tunnel --json
 ```
 
-Paseo 0.8 从 GitHub 安装：
+Paseo 0.10.3 从 GitHub 安装：
 
 ```bash
 paseo plugin install lyhu/paseo-plugin-tunnel
@@ -60,7 +60,7 @@ paseo plugin logs http-tunnel
 
 在本地 Paseo UI 中即可管理已连接的远程 Host，远程只需运行 daemon。先在各 Host 安装并启用 `http-tunnel`。
 
-**Host 切换器位于 HTTP Tunnel 页面右上角。** 多个已连接 Host 安装并运行插件后，可在这里切换当前管理的 Host。页面中的 Ingresses、Egresses、表单、状态检查和快速验证都属于右上角当前选中的 Host。切换 Host 只会改变 RPC 的目标，不会在 Host 之间复制规则。若切换器中只有一台 Host，请检查其他 Host 是否已连接，以及 `http-tunnel` 是否已经安装并处于 running 状态。升级到 Paseo 0.8 后，所有被管理的 Host 都必须运行 HTTP Tunnel **0.3.1 或更高版本** —— 仍使用 0.8 之前版本的 Host 会被 Paseo 0.8 拒绝，因而不出现在切换器中。详见[远程 Host 安装](installation.md#remote-hosts)。
+**Host 切换器位于 HTTP Tunnel 页面右上角。** 多个已连接 Host 安装并运行插件后，可在这里切换当前管理的 Host。页面中的 Ingresses、Egresses、表单、状态检查和快速验证都属于右上角当前选中的 Host。切换 Host 只会改变 RPC 的目标，不会在 Host 之间复制规则。若切换器中只有一台 Host，请检查其他 Host 是否已连接，以及 `http-tunnel` 是否已经安装并处于 running 状态。升级到 Paseo 0.10.3 后，所有被管理的 Host 都必须运行与之匹配的 HTTP Tunnel **0.3.3 或更高版本** —— 仍使用旧版插件的 Host 会被宿主的版本要求拒绝，因而不出现在切换器中。详见[远程 Host 安装](installation.md#remote-hosts)。
 
 1. **步骤 1（定位服务 Host）**：从 Paseo 左侧导航栏打开 **HTTP Tunnel**，在右上角 **Host 切换器**中选择可直连内网服务的机器。
 2. **步骤 2（创建 Ingress）**：点击 **Add Ingress**，输入规则名称及目标服务 Origin（例如 `http://127.0.0.1:3000`，此处 `127.0.0.1` 指当前选中的 Host）。Origin 仅包含协议、主机与端口。

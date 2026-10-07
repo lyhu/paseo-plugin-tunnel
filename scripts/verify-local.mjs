@@ -11,7 +11,9 @@ if (!checkout)
 const { connectToDaemon } = await import(
   pathToFileURL(path.join(checkout, "packages/cli/src/utils/client.ts")).href
 );
-const client = await connectToDaemon({ host: "127.0.0.1:6767" });
+const client = await connectToDaemon({
+  target: { kind: "endpoint", host: "127.0.0.1:6767" },
+});
 const target = createServer((req, res) => {
   if (req.url === "/probe") {
     res.setHeader("content-type", "application/json");

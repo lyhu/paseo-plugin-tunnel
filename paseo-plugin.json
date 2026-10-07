@@ -1,7 +1,7 @@
 {
   "id": "http-tunnel",
   "requirements": {
-    "paseo": ">=0.8.0"
+    "paseo": ">=0.10.3"
   },
   "build": [
     ["npm", "ci", "--omit=dev", "--ignore-scripts", "--no-audit", "--no-fund"]
