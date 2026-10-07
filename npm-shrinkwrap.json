@@ -1,12 +1,12 @@
 {
   "name": "paseo-plugin-tunnel",
-  "version": "0.3.2",
+  "version": "0.3.3",
   "lockfileVersion": 3,
   "requires": true,
   "packages": {
     "": {
       "name": "paseo-plugin-tunnel",
-      "version": "0.3.2",
+      "version": "0.3.3",
       "license": "AGPL-3.0-only",
       "dependencies": {
         "@getpaseo/relay": "0.10.3",

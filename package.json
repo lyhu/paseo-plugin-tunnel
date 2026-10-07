@@ -1,6 +1,6 @@
 {
   "name": "paseo-plugin-tunnel",
-  "version": "0.3.2",
+  "version": "0.3.3",
   "type": "module",
   "license": "AGPL-3.0-only",
   "description": "Controlled, end-to-end encrypted HTTP service connections for trusted Paseo hosts",

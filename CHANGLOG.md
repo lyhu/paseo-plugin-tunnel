@@ -4,6 +4,8 @@ User-visible changes to Paseo HTTP Tunnel. Versions follow Semantic Versioning; 
 
 ## Unreleased
 
+## 0.3.3 — 2026-10-07
+
 ### Changed
 
 - Upgrade the Paseo plugin SDK and `@getpaseo/relay` to `0.10.3`, and raise `requirements.paseo` to `>=0.10.3`. Hosts on Paseo 0.8–0.10.2 are now rejected by the manifest's version requirement and must upgrade before installing or updating the plugin.

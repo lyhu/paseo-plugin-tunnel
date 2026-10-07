@@ -46,7 +46,7 @@ Use a tag or commit to pin a revision. An explicit branch such as `main` continu
 
 ```bash
 # Pin to a specific release tag
-paseo plugin install lyhu/paseo-plugin-tunnel --ref v0.3.2
+paseo plugin install lyhu/paseo-plugin-tunnel --ref v0.3.3
 
 # Or using the full repository URL
 paseo plugin install https://github.com/lyhu/paseo-plugin-tunnel --ref main
@@ -66,7 +66,7 @@ paseo plugin status http-tunnel --json
 - `paseo plugin ls --json`: `http-tunnel` has `status: "running"`.
 - `paseo plugin status http-tunnel --json`: the following Git source fields match the intended installation:
 - `source`: `"git"`
-- `ref`: target branch/tag (e.g., `"main"` or `"v0.3.2"`)
+- `ref`: target branch/tag (e.g., `"main"` or `"v0.3.3"`)
 - `currentCommit`: valid 40-character Git SHA
 
 ---
